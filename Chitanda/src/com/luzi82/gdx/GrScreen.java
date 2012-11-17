@@ -16,7 +16,7 @@ public abstract class GrScreen<G extends Game> implements Screen {
 
 	protected Logger mLogger = new Logger(this.getClass().getSimpleName());
 
-	public GrScreen(G aParent) {
+	protected GrScreen(G aParent) {
 		mParent = aParent;
 		mLogger.setLevel(Logger.DEBUG);
 	}
