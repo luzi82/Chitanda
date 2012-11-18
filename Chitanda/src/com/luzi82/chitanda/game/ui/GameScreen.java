@@ -1,6 +1,7 @@
 package com.luzi82.chitanda.game.ui;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.GL10;
 import com.badlogic.gdx.graphics.Mesh;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -13,6 +14,8 @@ import com.luzi82.chitanda.game.logic.Board;
 import com.luzi82.gdx.GrScreen;
 
 public class GameScreen extends GrScreen<ChitandaGame> {
+
+	public static final int TOUCH_MAX = 16;
 
 	private Board mBoard;
 
@@ -27,10 +30,20 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 	private Mesh mMesh0;
 	private Mesh mMesh1;
 
+	private float iViewPortWidth;
+	private float iViewPortHeight;
+
 	private float iCameraZoom;
 	private float iCameraX;
 	private float iCameraY;
 	private boolean iCameraUpdate;
+
+	private boolean[] mTouching;
+	private float mTouchStartTouchX;
+	private float mTouchStartTouchY;
+	private float mTouchStartCameraX;
+	private float mTouchStartCameraY;
+	private boolean mMoveEnabled;
 
 	public GameScreen(ChitandaGame aParent) {
 		super(aParent);
@@ -46,6 +59,8 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 
 	@Override
 	protected void onScreenLoad() {
+		GL10 gl = Gdx.graphics.getGL10();
+
 		mBoard = new Board();
 		mBoard.setAll(true);
 
@@ -78,16 +93,54 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 		});
 		mMesh1.setIndices(new short[] { 0, 1, 2, 3 });
 
-		GL10 gl = Gdx.graphics.getGL10();
 		gl.glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
 		gl.glEnable(GL10.GL_TEXTURE_2D);
+
+		mTouching = new boolean[TOUCH_MAX];
 	}
 
 	@Override
 	public void onScreenRender(float delta) {
-		GL10 gl = Gdx.graphics.getGL10();
+		int i;
 
+		GL10 gl = Gdx.graphics.getGL10();
 		gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
+
+		Input input = Gdx.input;
+		if (input.isTouched()) {
+			float touchXAvg = 0;
+			float touchYAvg = 0;
+			int touchCount = 0;
+			boolean touchChanged = false;
+			for (i = 0; i < TOUCH_MAX; ++i) {
+				boolean touch = input.isTouched(i);
+				if (touch != mTouching[i])
+					touchChanged = true;
+				if (touch) {
+					touchXAvg += input.getX(i);
+					touchYAvg += input.getY(i);
+					++touchCount;
+				}
+				mTouching[i] = touch;
+			}
+			touchXAvg /= touchCount;
+			touchYAvg /= touchCount;
+			if (touchChanged) {
+				mTouchStartTouchX = touchXAvg;
+				mTouchStartTouchY = touchYAvg;
+				mTouchStartCameraX = iCameraX + (iCameraZoom * iViewPortWidth * (touchXAvg / iScreenWidth - 0.5f));
+				mTouchStartCameraY = iCameraY + (iCameraZoom * iViewPortHeight * (1 - (touchYAvg / iScreenHeight) - 0.5f));
+				iLogger.debug(String.format("%.1f, %.1f", mTouchStartCameraX, mTouchStartCameraY));
+			} else {
+				iCameraX = (iCameraZoom * iViewPortWidth) * (0.5f - touchXAvg / iScreenWidth) + mTouchStartCameraX;
+				iCameraY = (iCameraZoom * iViewPortHeight) * (0.5f + touchYAvg / iScreenHeight - 1) + mTouchStartCameraY;
+				iCameraUpdate = true;
+			}
+		} else {
+			for (i = 0; i < TOUCH_MAX; ++i) {
+				mTouching[i] = false;
+			}
+		}
 
 		if (iCameraUpdate) {
 			mCamera.zoom = iCameraZoom;
@@ -106,10 +159,10 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 
 	@Override
 	public void onScreenResize() {
-		float w = (iScreenWidth > iScreenHeight) ? (((float) iScreenWidth) / iScreenHeight) : 1;
-		float h = (iScreenWidth > iScreenHeight) ? 1 : (((float) iScreenHeight) / iScreenWidth);
-		mCamera.viewportWidth = w;
-		mCamera.viewportHeight = h;
+		iViewPortWidth = (iScreenWidth > iScreenHeight) ? (((float) iScreenWidth) / iScreenHeight) : 1;
+		iViewPortHeight = (iScreenWidth > iScreenHeight) ? 1 : (((float) iScreenHeight) / iScreenWidth);
+		mCamera.viewportWidth = iViewPortWidth;
+		mCamera.viewportHeight = iViewPortHeight;
 		iCameraUpdate = true;
 	}
 }
