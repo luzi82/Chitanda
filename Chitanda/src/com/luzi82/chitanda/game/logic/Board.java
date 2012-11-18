@@ -2,8 +2,8 @@ package com.luzi82.chitanda.game.logic;
 
 public class Board {
 
-	public static final int WIDTH = 1920 * 4;
-	public static final int HEIGHT = 1080 * 4;
+	public static final int WIDTH = 2048 * 4;
+	public static final int HEIGHT = 1024 * 4;
 	public static final int TOTAL_CELL = WIDTH * HEIGHT;
 	public static final int DATA_SIZE = (TOTAL_CELL + (Byte.SIZE - 1)) / Byte.SIZE;
 

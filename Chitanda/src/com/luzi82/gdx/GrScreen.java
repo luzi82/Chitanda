@@ -11,8 +11,8 @@ import com.badlogic.gdx.utils.Logger;
 public abstract class GrScreen<G extends Game> implements Screen {
 
 	protected G mParent;
-	protected float mScreenWidth;
-	protected float mScreenHeight;
+	protected int mScreenWidth;
+	protected int mScreenHeight;
 
 	protected Logger mLogger = new Logger(this.getClass().getSimpleName());
 
@@ -45,7 +45,7 @@ public abstract class GrScreen<G extends Game> implements Screen {
 
 	@Override
 	public void hide() {
-		disposeMm();
+		disposeMember();
 	}
 
 	@Override
@@ -54,16 +54,16 @@ public abstract class GrScreen<G extends Game> implements Screen {
 
 	@Override
 	public void dispose() {
-		disposeMm();
+		disposeMember();
 	}
 
-	private void disposeMm() {
+	private void disposeMember() {
 		for (Class<?> c = this.getClass(); c != GrScreen.class; c = c.getSuperclass()) {
 			Field[] fv = c.getDeclaredFields();
 			for (Field f : fv) {
 				String n = f.getName();
 				f.setAccessible(true);
-				if (n.startsWith("mm")) {
+				if (n.startsWith("m")) {
 					try {
 						Object o = f.get(this);
 						if (o instanceof Disposable) {
