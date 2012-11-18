@@ -2,12 +2,12 @@ package com.luzi82.gdx;
 
 import java.lang.reflect.Field;
 
-import com.badlogic.gdx.Game;
+import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.Logger;
 
-public abstract class GrScreen<G extends Game> implements Screen {
+public abstract class GrScreen<G extends GrGame> implements Screen, InputProcessor {
 
 	protected G iParent;
 	protected int iScreenWidth;
@@ -135,6 +135,54 @@ public abstract class GrScreen<G extends Game> implements Screen {
 	
 	protected void onScreenDispose(){
 		// dummy
+	}
+
+	@Override
+	public boolean keyDown(int keycode) {
+		// dummy
+		return false;
+	}
+
+	@Override
+	public boolean keyUp(int keycode) {
+		// dummy
+		return false;
+	}
+
+	@Override
+	public boolean keyTyped(char character) {
+		// dummy
+		return false;
+	}
+
+	@Override
+	public boolean touchDown(int x, int y, int pointer, int button) {
+		// dummy
+		return false;
+	}
+
+	@Override
+	public boolean touchUp(int x, int y, int pointer, int button) {
+		// dummy
+		return false;
+	}
+
+	@Override
+	public boolean touchDragged(int x, int y, int pointer) {
+		// dummy
+		return false;
+	}
+
+	@Override
+	public boolean touchMoved(int x, int y) {
+		// dummy
+		return false;
+	}
+
+	@Override
+	public boolean scrolled(int amount) {
+		// dummy
+		return false;
 	}
 
 }

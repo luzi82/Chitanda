@@ -1,7 +1,6 @@
 package com.luzi82.chitanda.game.ui;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.GL10;
 import com.badlogic.gdx.graphics.Mesh;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -38,7 +37,12 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 	private float iCameraY;
 	private boolean iCameraUpdate;
 
+	private boolean mNewTouch;
 	private boolean[] mTouching;
+	private int[] mTouchX;
+	private int[] mTouchY;
+	// private boolean[] mTouching;
+	// private boolean[] mMoved;
 	private float mTouchStartCameraX;
 	private float mTouchStartCameraY;
 	private float mTouchStartDiff;
@@ -96,60 +100,62 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 		gl.glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
 		gl.glEnable(GL10.GL_TEXTURE_2D);
 
+		// mTouching = new boolean[TOUCH_MAX];
+		// mLastX = new int[TOUCH_MAX];
+		// mLastY = new int[TOUCH_MAX];
+		// mSumX = new int[TOUCH_MAX];
+		// mSumY = new int[TOUCH_MAX];
+		mNewTouch = true;
 		mTouching = new boolean[TOUCH_MAX];
+		mTouchX = new int[TOUCH_MAX];
+		mTouchY = new int[TOUCH_MAX];
 	}
 
 	@Override
 	public void onScreenRender(float delta) {
-		int i;
+		int i, x, y, dx, dy, ddx, ddy;
 
 		GL10 gl = Gdx.graphics.getGL10();
 		gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
 
-		Input input = Gdx.input;
-		if (input.isTouched()) {
-			float touchXAvg = 0;
-			float touchYAvg = 0;
-			float touchDiff = 0;
-			int touchCount = 0;
-			boolean touchChanged = false;
-			for (i = 0; i < TOUCH_MAX; ++i) {
-				boolean touch = input.isTouched(i);
-				if (touch != mTouching[i])
-					touchChanged = true;
-				if (touch) {
-					touchXAvg += input.getX(i);
-					touchYAvg += input.getY(i);
-					++touchCount;
-				}
-				mTouching[i] = touch;
-			}
+		float touchXAvg = 0;
+		float touchYAvg = 0;
+		float touchDiff = 0;
+		int touchCount = 0;
+
+		for (i = 0; i < TOUCH_MAX; ++i) {
+			if (!mTouching[i])
+				continue;
+			touchXAvg += mTouchX[i];
+			touchYAvg += mTouchY[i];
+			++touchCount;
+		}
+		if (touchCount > 0) {
 			touchXAvg /= touchCount;
 			touchYAvg /= touchCount;
 			if (touchCount > 1) {
 				for (i = 0; i < TOUCH_MAX; ++i) {
-					if (!input.isTouched(i))
+					if (!mTouching[i])
 						continue;
 					float d = 0, dd = 0;
-					dd = input.getX(i) - touchXAvg;
+					dd = mTouchX[i] - touchXAvg;
 					dd *= dd;
 					d += dd;
-					dd = input.getY(i) - touchYAvg;
+					dd = mTouchY[i] - touchYAvg;
 					dd *= dd;
 					d += dd;
 					touchDiff += (float) Math.sqrt(d);
 				}
 			}
 			touchDiff /= touchCount;
-			if (touchChanged) {
+			if (mNewTouch) {
 				mTouchStartCameraX = iCameraX + (iCameraZoom * iViewPortWidth * (touchXAvg / iScreenWidth - 0.5f));
 				mTouchStartCameraY = iCameraY + (iCameraZoom * iViewPortHeight * (1 - (touchYAvg / iScreenHeight) - 0.5f));
-				// iLogger.debug(String.format("%.1f, %.1f", mTouchStartCameraX,
-				// mTouchStartCameraY));
 				if (touchCount > 1) {
 					mTouchStartDiff = touchDiff;
 					mTouchStartCameraZoom = iCameraZoom;
 				}
+				mNewTouch=false;
 			} else {
 				if (touchCount > 1) {
 					iCameraZoom = mTouchStartCameraZoom * mTouchStartDiff / touchDiff;
@@ -157,10 +163,6 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 				iCameraX = (iCameraZoom * iViewPortWidth) * (0.5f - touchXAvg / iScreenWidth) + mTouchStartCameraX;
 				iCameraY = (iCameraZoom * iViewPortHeight) * (0.5f + touchYAvg / iScreenHeight - 1) + mTouchStartCameraY;
 				iCameraUpdate = true;
-			}
-		} else {
-			for (i = 0; i < TOUCH_MAX; ++i) {
-				mTouching[i] = false;
 			}
 		}
 
@@ -187,4 +189,29 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 		mCamera.viewportHeight = iViewPortHeight;
 		iCameraUpdate = true;
 	}
+
+	@Override
+	public boolean touchDown(int x, int y, int pointer, int button) {
+		mNewTouch = true;
+		mTouching[pointer] = true;
+		mTouchX[pointer] = x;
+		mTouchY[pointer] = y;
+		return true;
+	}
+
+	@Override
+	public boolean touchUp(int x, int y, int pointer, int button) {
+		mNewTouch = true;
+		mTouching[pointer] = false;
+		return true;
+	}
+
+	@Override
+	public boolean touchDragged(int x, int y, int pointer) {
+		mTouching[pointer] = true;
+		mTouchX[pointer] = x;
+		mTouchY[pointer] = y;
+		return true;
+	}
+
 }
