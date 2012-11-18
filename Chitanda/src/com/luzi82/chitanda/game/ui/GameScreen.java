@@ -39,10 +39,10 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 	private boolean iCameraUpdate;
 
 	private boolean[] mTouching;
-	private float mTouchStartTouchX;
-	private float mTouchStartTouchY;
 	private float mTouchStartCameraX;
 	private float mTouchStartCameraY;
+	private float mTouchStartDiff;
+	private float mTouchStartCameraZoom;
 	private boolean mMoveEnabled;
 
 	public GameScreen(ChitandaGame aParent) {
@@ -110,6 +110,7 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 		if (input.isTouched()) {
 			float touchXAvg = 0;
 			float touchYAvg = 0;
+			float touchDiff = 0;
 			int touchCount = 0;
 			boolean touchChanged = false;
 			for (i = 0; i < TOUCH_MAX; ++i) {
@@ -125,13 +126,34 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 			}
 			touchXAvg /= touchCount;
 			touchYAvg /= touchCount;
+			if (touchCount > 1) {
+				for (i = 0; i < TOUCH_MAX; ++i) {
+					if (!input.isTouched(i))
+						continue;
+					float d = 0, dd = 0;
+					dd = input.getX(i) - touchXAvg;
+					dd *= dd;
+					d += dd;
+					dd = input.getY(i) - touchYAvg;
+					dd *= dd;
+					d += dd;
+					touchDiff += (float) Math.sqrt(d);
+				}
+			}
+			touchDiff /= touchCount;
 			if (touchChanged) {
-				mTouchStartTouchX = touchXAvg;
-				mTouchStartTouchY = touchYAvg;
 				mTouchStartCameraX = iCameraX + (iCameraZoom * iViewPortWidth * (touchXAvg / iScreenWidth - 0.5f));
 				mTouchStartCameraY = iCameraY + (iCameraZoom * iViewPortHeight * (1 - (touchYAvg / iScreenHeight) - 0.5f));
-				iLogger.debug(String.format("%.1f, %.1f", mTouchStartCameraX, mTouchStartCameraY));
+				// iLogger.debug(String.format("%.1f, %.1f", mTouchStartCameraX,
+				// mTouchStartCameraY));
+				if (touchCount > 1) {
+					mTouchStartDiff = touchDiff;
+					mTouchStartCameraZoom = iCameraZoom;
+				}
 			} else {
+				if (touchCount > 1) {
+					iCameraZoom = mTouchStartCameraZoom * mTouchStartDiff / touchDiff;
+				}
 				iCameraX = (iCameraZoom * iViewPortWidth) * (0.5f - touchXAvg / iScreenWidth) + mTouchStartCameraX;
 				iCameraY = (iCameraZoom * iViewPortHeight) * (0.5f + touchYAvg / iScreenHeight - 1) + mTouchStartCameraY;
 				iCameraUpdate = true;
