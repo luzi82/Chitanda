@@ -10,54 +10,76 @@ import com.badlogic.gdx.utils.Logger;
 
 public abstract class GrScreen<G extends Game> implements Screen {
 
-	protected G mParent;
-	protected int mScreenWidth;
-	protected int mScreenHeight;
+	protected G iParent;
+	protected int iScreenWidth;
+	protected int iScreenHeight;
 
-	protected Logger mLogger = new Logger(this.getClass().getSimpleName());
+	private boolean iMemberLoaded = false;
+
+	protected Logger iLogger = new Logger(this.getClass().getSimpleName(), Logger.DEBUG);
 
 	protected GrScreen(G aParent) {
-		mParent = aParent;
-		mLogger.setLevel(Logger.DEBUG);
+		iParent = aParent;
 	}
 
 	@Override
-	public void resize(int aWidth, int aHeight) {
-		mScreenWidth = aWidth;
-		mScreenHeight = aHeight;
+	public final void show() {
+		iLogger.debug("show");
+		load();
+		onScreenShow();
 	}
 
 	@Override
-	public void show() {
-		mScreenWidth = Gdx.graphics.getWidth();
-		mScreenHeight = Gdx.graphics.getHeight();
+	public final void resume() {
+		iLogger.debug("resume");
+		load();
+		onScreenResume();
 	}
 
 	@Override
-	public void resume() {
-		mScreenWidth = Gdx.graphics.getWidth();
-		mScreenHeight = Gdx.graphics.getHeight();
+	public final void resize(int aWidth, int aHeight) {
+		iLogger.debug("resize");
+		iScreenWidth = aWidth;
+		iScreenHeight = aHeight;
+		if(iMemberLoaded)
+			onScreenResize();
 	}
 
 	@Override
-	public void render(float delta) {
+	public final void render(float aDelta) {
+		onScreenRender(aDelta);
 	}
 
 	@Override
-	public void hide() {
+	public final void hide() {
+		iLogger.debug("hide");
+		onScreenHide();
 		disposeMember();
 	}
 
 	@Override
-	public void pause() {
+	public final void pause() {
+		iLogger.debug("pause");
+		onScreenPause();
+		disposeMember();
 	}
 
 	@Override
-	public void dispose() {
+	public final void dispose() {
+		iLogger.debug("dispose");
+		onScreenDispose();
 		disposeMember();
+	}
+
+	private void load() {
+		if (iMemberLoaded)
+			return;
+		iMemberLoaded = true;
+		onScreenLoad();
 	}
 
 	private void disposeMember() {
+		iLogger.debug("disposeMember");
 		for (Class<?> c = this.getClass(); c != GrScreen.class; c = c.getSuperclass()) {
 			Field[] fv = c.getDeclaredFields();
 			for (Field f : fv) {
@@ -70,14 +92,50 @@ public abstract class GrScreen<G extends Game> implements Screen {
 							Disposable d = (Disposable) o;
 							d.dispose();
 						}
-						f.set(this, null);
+						if (!f.getType().isPrimitive())
+							f.set(this, null);
 					} catch (IllegalArgumentException e) {
+						iLogger.debug("", e);
 					} catch (IllegalAccessException e) {
+						iLogger.debug("", e);
 					}
 				}
 				f.setAccessible(false);
 			}
 		}
+		iMemberLoaded = false;
+	}
+	
+	protected void onScreenLoad() {
+		// dummy
+	}
+
+	protected void onScreenResize(){
+		// dummy
+	}
+	
+	protected void onScreenShow(){
+		// dummy
+	}
+	
+	protected void onScreenResume(){
+		// dummy
+	}
+	
+	protected void onScreenRender(float aDelta){
+		// dummy
+	}
+	
+	protected void onScreenHide(){
+		// dummy
+	}
+
+	protected void onScreenPause(){
+		// dummy
+	}
+	
+	protected void onScreenDispose(){
+		// dummy
 	}
 
 }
