@@ -29,13 +29,13 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 	private Mesh mMesh0;
 	private Mesh mMesh1;
 
-	private float iViewPortWidth;
-	private float iViewPortHeight;
+	private float mViewPortWidth;
+	private float mViewPortHeight;
 
 	private float iCameraZoom;
 	private float iCameraX;
 	private float iCameraY;
-	private boolean iCameraUpdate;
+	private boolean mCameraUpdate;
 
 	private boolean mNewTouch;
 	private boolean[] mTouching;
@@ -47,7 +47,7 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 	private float mTouchStartCameraY;
 	private float mTouchStartDiff;
 	private float mTouchStartCameraZoom;
-	private boolean mMoveEnabled;
+//	private boolean mMoveEnabled;
 
 	public GameScreen(ChitandaGame aParent) {
 		super(aParent);
@@ -58,7 +58,7 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 		iCameraZoom = Math.min(Board.WIDTH, Board.HEIGHT);
 		iCameraX = Board.WIDTH / 2;
 		iCameraY = Board.HEIGHT / 2;
-		iCameraUpdate = true;
+		mCameraUpdate = true;
 	}
 
 	@Override
@@ -113,7 +113,7 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 
 	@Override
 	public void onScreenRender(float delta) {
-		int i, x, y, dx, dy, ddx, ddy;
+		int i;
 
 		GL10 gl = Gdx.graphics.getGL10();
 		gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
@@ -149,8 +149,8 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 			}
 			touchDiff /= touchCount;
 			if (mNewTouch) {
-				mTouchStartCameraX = iCameraX + (iCameraZoom * iViewPortWidth * (touchXAvg / iScreenWidth - 0.5f));
-				mTouchStartCameraY = iCameraY + (iCameraZoom * iViewPortHeight * (1 - (touchYAvg / iScreenHeight) - 0.5f));
+				mTouchStartCameraX = iCameraX + (iCameraZoom * mViewPortWidth * (touchXAvg / iScreenWidth - 0.5f));
+				mTouchStartCameraY = iCameraY + (iCameraZoom * mViewPortHeight * (1 - (touchYAvg / iScreenHeight) - 0.5f));
 				if (touchCount > 1) {
 					mTouchStartDiff = touchDiff;
 					mTouchStartCameraZoom = iCameraZoom;
@@ -160,18 +160,18 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 				if (touchCount > 1) {
 					iCameraZoom = mTouchStartCameraZoom * mTouchStartDiff / touchDiff;
 				}
-				iCameraX = (iCameraZoom * iViewPortWidth) * (0.5f - touchXAvg / iScreenWidth) + mTouchStartCameraX;
-				iCameraY = (iCameraZoom * iViewPortHeight) * (0.5f + touchYAvg / iScreenHeight - 1) + mTouchStartCameraY;
-				iCameraUpdate = true;
+				iCameraX = (iCameraZoom * mViewPortWidth) * (0.5f - touchXAvg / iScreenWidth) + mTouchStartCameraX;
+				iCameraY = (iCameraZoom * mViewPortHeight) * (0.5f + touchYAvg / iScreenHeight - 1) + mTouchStartCameraY;
+				mCameraUpdate = true;
 			}
 		}
 
-		if (iCameraUpdate) {
+		if (mCameraUpdate) {
 			mCamera.zoom = iCameraZoom;
 			mCamera.position.x = iCameraX;
 			mCamera.position.y = iCameraY;
 			mCamera.update();
-			iCameraUpdate = false;
+			mCameraUpdate = false;
 		}
 		mCamera.apply(gl);
 
@@ -183,11 +183,11 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 
 	@Override
 	public void onScreenResize() {
-		iViewPortWidth = (iScreenWidth > iScreenHeight) ? (((float) iScreenWidth) / iScreenHeight) : 1;
-		iViewPortHeight = (iScreenWidth > iScreenHeight) ? 1 : (((float) iScreenHeight) / iScreenWidth);
-		mCamera.viewportWidth = iViewPortWidth;
-		mCamera.viewportHeight = iViewPortHeight;
-		iCameraUpdate = true;
+		mViewPortWidth = (iScreenWidth > iScreenHeight) ? (((float) iScreenWidth) / iScreenHeight) : 1;
+		mViewPortHeight = (iScreenWidth > iScreenHeight) ? 1 : (((float) iScreenHeight) / iScreenWidth);
+		mCamera.viewportWidth = mViewPortWidth;
+		mCamera.viewportHeight = mViewPortHeight;
+		mCameraUpdate = true;
 	}
 
 	@Override
