@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.VertexAttribute;
 import com.badlogic.gdx.graphics.VertexAttributes;
+import com.badlogic.gdx.math.MathUtils;
 import com.luzi82.chitanda.ChitandaGame;
 import com.luzi82.chitanda.game.logic.Board;
 import com.luzi82.gdx.GrScreen;
@@ -15,6 +16,9 @@ import com.luzi82.gdx.GrScreen;
 public class GameScreen extends GrScreen<ChitandaGame> {
 
 	public static final int TOUCH_MAX = 16;
+	public static final float SMOOTH_REDUCE = 1f / 256;
+	public static final float DIV_LN_SMOOTH_REDUCE = (float) (1 / Math.log(SMOOTH_REDUCE));
+	public static final float PHI = (float) (1 + Math.sqrt(5)) / 2;
 
 	private Board mBoard;
 
@@ -36,8 +40,12 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 	private float iCameraX;
 	private float iCameraY;
 	private boolean mCameraUpdate;
+	private float mCameraZoomD;
+	private float mCameraXD;
+	private float mCameraYD;
 
 	private boolean mNewTouch;
+	private boolean mNewTouchEvent;
 	private boolean[] mTouching;
 	private int[] mTouchX;
 	private int[] mTouchY;
@@ -47,7 +55,8 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 	private float mTouchStartCameraY;
 	private float mTouchStartDiff;
 	private float mTouchStartCameraZoom;
-//	private boolean mMoveEnabled;
+
+	// private boolean mMoveEnabled;
 
 	public GameScreen(ChitandaGame aParent) {
 		super(aParent);
@@ -109,11 +118,18 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 		mTouching = new boolean[TOUCH_MAX];
 		mTouchX = new int[TOUCH_MAX];
 		mTouchY = new int[TOUCH_MAX];
+
+		mCameraZoomD = 0;
+		mCameraXD = 0;
+		mCameraYD = 0;
 	}
 
 	@Override
 	public void onScreenRender(float delta) {
 		int i;
+
+		float reduce = (float) Math.pow(SMOOTH_REDUCE, delta);
+		float intReduce = (reduce - 1) * DIV_LN_SMOOTH_REDUCE;
 
 		GL10 gl = Gdx.graphics.getGL10();
 		gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
@@ -155,16 +171,38 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 					mTouchStartDiff = touchDiff;
 					mTouchStartCameraZoom = iCameraZoom;
 				}
-				mNewTouch=false;
-			} else {
+				mNewTouch = false;
+			} else if (mNewTouchEvent) {
 				if (touchCount > 1) {
-					iCameraZoom = mTouchStartCameraZoom * mTouchStartDiff / touchDiff;
+					float newZoom = mTouchStartCameraZoom * mTouchStartDiff / touchDiff;
+					mCameraZoomD = ((float) Math.log(newZoom / iCameraZoom)) / delta;
+					iCameraZoom = newZoom;
+				} else {
+					iCameraZoom *= (float)Math.pow(Math.E,mCameraZoomD * intReduce);
+					mCameraZoomD *= reduce;
 				}
-				iCameraX = (iCameraZoom * mViewPortWidth) * (0.5f - touchXAvg / mScreenWidth) + mTouchStartCameraX;
-				iCameraY = (iCameraZoom * mViewPortHeight) * (0.5f + touchYAvg / mScreenHeight - 1) + mTouchStartCameraY;
+				float newX = (iCameraZoom * mViewPortWidth) * (0.5f - touchXAvg / mScreenWidth) + mTouchStartCameraX;
+				float newY = (iCameraZoom * mViewPortHeight) * (0.5f + touchYAvg / mScreenHeight - 1) + mTouchStartCameraY;
+				mCameraXD = (newX - iCameraX) / delta;
+				mCameraYD = (newY - iCameraY) / delta;
+				iCameraX = newX;
+				iCameraY = newY;
 				mCameraUpdate = true;
 			}
+		} else {
+			iCameraZoom *= (float)Math.pow(Math.E,mCameraZoomD * intReduce);
+			iCameraX += mCameraXD * intReduce;
+			iCameraY += mCameraYD * intReduce;
+			mCameraZoomD *= reduce;
+			mCameraXD *= reduce;
+			mCameraYD *= reduce;
+			mCameraUpdate = true;
 		}
+		mNewTouchEvent = false;
+
+		iCameraZoom = correct(PHI * 4, iCameraZoom, 4 * 1024 * PHI);
+		iCameraX = correct(0, iCameraX, Board.WIDTH);
+		iCameraY = correct(0, iCameraY, Board.HEIGHT);
 
 		if (mCameraUpdate) {
 			mCamera.zoom = iCameraZoom;
@@ -193,6 +231,7 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 	@Override
 	public boolean touchDown(int x, int y, int pointer, int button) {
 		mNewTouch = true;
+		mNewTouchEvent = true;
 		mTouching[pointer] = true;
 		mTouchX[pointer] = x;
 		mTouchY[pointer] = y;
@@ -202,16 +241,28 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 	@Override
 	public boolean touchUp(int x, int y, int pointer, int button) {
 		mNewTouch = true;
+		mNewTouchEvent = true;
 		mTouching[pointer] = false;
 		return true;
 	}
 
 	@Override
 	public boolean touchDragged(int x, int y, int pointer) {
+		mNewTouchEvent = true;
 		mTouching[pointer] = true;
 		mTouchX[pointer] = x;
 		mTouchY[pointer] = y;
 		return true;
+	}
+
+	private static float correct(float aMin, float aVal, float aMax) {
+		if (aVal < aMin) {
+			aVal = aMin;
+		}
+		if (aVal > aMax) {
+			aVal = aMax;
+		}
+		return aVal;
 	}
 
 }
