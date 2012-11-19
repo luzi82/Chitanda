@@ -149,8 +149,8 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 			}
 			touchDiff /= touchCount;
 			if (mNewTouch) {
-				mTouchStartCameraX = iCameraX + (iCameraZoom * mViewPortWidth * (touchXAvg / iScreenWidth - 0.5f));
-				mTouchStartCameraY = iCameraY + (iCameraZoom * mViewPortHeight * (1 - (touchYAvg / iScreenHeight) - 0.5f));
+				mTouchStartCameraX = iCameraX + (iCameraZoom * mViewPortWidth * (touchXAvg / mScreenWidth - 0.5f));
+				mTouchStartCameraY = iCameraY + (iCameraZoom * mViewPortHeight * (1 - (touchYAvg / mScreenHeight) - 0.5f));
 				if (touchCount > 1) {
 					mTouchStartDiff = touchDiff;
 					mTouchStartCameraZoom = iCameraZoom;
@@ -160,8 +160,8 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 				if (touchCount > 1) {
 					iCameraZoom = mTouchStartCameraZoom * mTouchStartDiff / touchDiff;
 				}
-				iCameraX = (iCameraZoom * mViewPortWidth) * (0.5f - touchXAvg / iScreenWidth) + mTouchStartCameraX;
-				iCameraY = (iCameraZoom * mViewPortHeight) * (0.5f + touchYAvg / iScreenHeight - 1) + mTouchStartCameraY;
+				iCameraX = (iCameraZoom * mViewPortWidth) * (0.5f - touchXAvg / mScreenWidth) + mTouchStartCameraX;
+				iCameraY = (iCameraZoom * mViewPortHeight) * (0.5f + touchYAvg / mScreenHeight - 1) + mTouchStartCameraY;
 				mCameraUpdate = true;
 			}
 		}
@@ -183,8 +183,8 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 
 	@Override
 	public void onScreenResize() {
-		mViewPortWidth = (iScreenWidth > iScreenHeight) ? (((float) iScreenWidth) / iScreenHeight) : 1;
-		mViewPortHeight = (iScreenWidth > iScreenHeight) ? 1 : (((float) iScreenHeight) / iScreenWidth);
+		mViewPortWidth = (mScreenWidth > mScreenHeight) ? (((float) mScreenWidth) / mScreenHeight) : 1;
+		mViewPortHeight = (mScreenWidth > mScreenHeight) ? 1 : (((float) mScreenHeight) / mScreenWidth);
 		mCamera.viewportWidth = mViewPortWidth;
 		mCamera.viewportHeight = mViewPortHeight;
 		mCameraUpdate = true;

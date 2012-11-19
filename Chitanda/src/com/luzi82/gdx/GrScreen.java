@@ -10,8 +10,8 @@ import com.badlogic.gdx.utils.Logger;
 public abstract class GrScreen<G extends GrGame> implements Screen, InputProcessor {
 
 	protected G iParent;
-	protected int iScreenWidth;
-	protected int iScreenHeight;
+	protected int mScreenWidth;
+	protected int mScreenHeight;
 
 	private boolean iMemberLoaded = false;
 
@@ -38,8 +38,8 @@ public abstract class GrScreen<G extends GrGame> implements Screen, InputProcess
 	@Override
 	public final void resize(int aWidth, int aHeight) {
 		iLogger.debug("resize");
-		iScreenWidth = aWidth;
-		iScreenHeight = aHeight;
+		mScreenWidth = aWidth;
+		mScreenHeight = aHeight;
 		if(iMemberLoaded)
 			onScreenResize();
 	}
