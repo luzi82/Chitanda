@@ -178,8 +178,10 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 					mCameraZoomD = ((float) Math.log(newZoom / iCameraZoom)) / delta;
 					iCameraZoom = newZoom;
 				} else {
-					iCameraZoom *= (float)Math.pow(Math.E,mCameraZoomD * intReduce);
-					mCameraZoomD *= reduce;
+					// iCameraZoom *= (float)Math.pow(Math.E,mCameraZoomD *
+					// intReduce);
+					// mCameraZoomD *= reduce;
+					smoothZoom(delta, reduce, intReduce);
 				}
 				float newX = (iCameraZoom * mViewPortWidth) * (0.5f - touchXAvg / mScreenWidth) + mTouchStartCameraX;
 				float newY = (iCameraZoom * mViewPortHeight) * (0.5f + touchYAvg / mScreenHeight - 1) + mTouchStartCameraY;
@@ -190,19 +192,21 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 				mCameraUpdate = true;
 			}
 		} else {
-			iCameraZoom *= (float)Math.pow(Math.E,mCameraZoomD * intReduce);
-			iCameraX += mCameraXD * intReduce;
-			iCameraY += mCameraYD * intReduce;
-			mCameraZoomD *= reduce;
-			mCameraXD *= reduce;
-			mCameraYD *= reduce;
+			smoothZoom(delta, reduce, intReduce);
+			smoothXY(delta, reduce, intReduce);
+			// iCameraZoom *= (float)Math.pow(Math.E,mCameraZoomD * intReduce);
+			// iCameraX += mCameraXD * intReduce;
+			// iCameraY += mCameraYD * intReduce;
+			// mCameraZoomD *= reduce;
+			// mCameraXD *= reduce;
+			// mCameraYD *= reduce;
 			mCameraUpdate = true;
 		}
 		mNewTouchEvent = false;
 
-		iCameraZoom = correct(PHI * 4, iCameraZoom, 4 * 1024 * PHI);
-		iCameraX = correct(0, iCameraX, Board.WIDTH);
-		iCameraY = correct(0, iCameraY, Board.HEIGHT);
+		// iCameraZoom = correct(PHI * 4, iCameraZoom, 4 * 1024 * PHI);
+		// iCameraX = correct(0, iCameraX, Board.WIDTH);
+		// iCameraY = correct(0, iCameraY, Board.HEIGHT);
 
 		if (mCameraUpdate) {
 			mCamera.zoom = iCameraZoom;
@@ -263,6 +267,44 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 			aVal = aMax;
 		}
 		return aVal;
+	}
+
+	static private float ZOOM_MIN = PHI * 4;
+	static private float ZOOM_MAX = 4 * 1024 * PHI;
+	static private float LOG_ZOOM_MIN = (float) Math.log(ZOOM_MIN);
+	static private float LOG_ZOOM_MAX = (float) Math.log(ZOOM_MAX);
+
+	private void smoothZoom(float aDelta, float aReduce, float aIntReduce) {
+		// iCameraZoom *= (float) Math.pow(Math.E, mCameraZoomD * aIntReduce);
+		float logCameraZoom = (float) Math.log(iCameraZoom);
+		logCameraZoom = smooth(aDelta, aReduce, aIntReduce, logCameraZoom, mCameraZoomD, LOG_ZOOM_MIN, LOG_ZOOM_MAX);
+		iCameraZoom = (float) Math.pow(Math.E, logCameraZoom);
+		mCameraZoomD *= aReduce;
+	}
+
+	private void smoothXY(float aDelta, float aReduce, float aIntReduce) {
+		// iCameraX += mCameraXD * aIntReduce;
+		// iCameraY += mCameraYD * aIntReduce;
+		iCameraX = smooth(aDelta, aReduce, aIntReduce, iCameraX, mCameraXD, 0, Board.WIDTH);
+		iCameraY = smooth(aDelta, aReduce, aIntReduce, iCameraY, mCameraYD, 0, Board.HEIGHT);
+		mCameraXD *= aReduce;
+		mCameraYD *= aReduce;
+	}
+
+	private float smooth(float aDelta, float aReduce, float aIntReduce, float aS0, float aV, float aMin, float aMax) {
+		if ((aMin <= aS0) && (aS0 <= aMax)) {
+			float s1 = aS0 + aV * aIntReduce;
+			// TODO mid border
+			return s1;
+		} else {
+			float border = (aS0 < aMin) ? aMin : aMax;
+			float dm = aV * aIntReduce;
+			float db = (aReduce - 1) * (2 * aS0 - 2 * border + dm) / 2;
+			float s1 = aS0 + dm + db;
+			// TODO mid border
+			return s1;
+		}
+
 	}
 
 }
