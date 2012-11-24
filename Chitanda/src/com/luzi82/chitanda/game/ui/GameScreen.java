@@ -350,16 +350,6 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 		return true;
 	}
 
-	private static float correct(float aMin, float aVal, float aMax) {
-		if (aVal < aMin) {
-			aVal = aMin;
-		}
-		if (aVal > aMax) {
-			aVal = aMax;
-		}
-		return aVal;
-	}
-
 	static private float ZOOM_MIN = PHI * 4;
 	static private float ZOOM_MAX = 4 * 1024 * PHI;
 	static private float LOG_ZOOM_MIN = (float) Math.log(ZOOM_MIN);
