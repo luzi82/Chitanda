@@ -202,11 +202,7 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 			}
 			touchDiff /= touchCount;
 			if (mNewTouch) {
-				// mTouchStartCameraX = iCameraX + (iCameraZoom * mViewPortWidth
-				// * (touchXAvg / mScreenWidth - 0.5f));
 				mTouchStartCameraX = screenToBoardX(touchXAvg);
-				// mTouchStartCameraY = iCameraY + (iCameraZoom *
-				// mViewPortHeight * (1 - (touchYAvg / mScreenHeight) - 0.5f));
 				mTouchStartCameraY = screenToBoardY(touchYAvg);
 				if (touchCount > 1) {
 					mTouchStartDiff = touchDiff;
@@ -219,13 +215,10 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 					mCameraZoomD = ((float) Math.log(newZoom / iCameraZoom)) / delta;
 					iCameraZoom = newZoom;
 				} else {
-					// iCameraZoom *= (float)Math.pow(Math.E,mCameraZoomD *
-					// intReduce);
-					// mCameraZoomD *= reduce;
 					smoothZoom(delta, reduce, intReduce);
 				}
-				float newX = (iCameraZoom * mViewPortWidth) * (0.5f - touchXAvg / mScreenWidth) + mTouchStartCameraX;
-				float newY = (iCameraZoom * mViewPortHeight) * (0.5f + touchYAvg / mScreenHeight - 1) + mTouchStartCameraY;
+				float newX = screenBoardToCameraX(touchXAvg, mTouchStartCameraX);
+				float newY = screenBoardToCameraY(touchYAvg, mTouchStartCameraY);
 				mCameraXD = (newX - iCameraX) / delta;
 				mCameraYD = (newY - iCameraY) / delta;
 				iCameraX = newX;
@@ -237,8 +230,8 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 			float y = screenToBoardY(mMouseOverY);
 			mCameraZoomD -= mMouseScrolled * PHI;
 			smoothZoom(delta, reduce, intReduce);
-			float newX = (iCameraZoom * mViewPortWidth) * (0.5f - ((float) mMouseOverX) / mScreenWidth) + x;
-			float newY = (iCameraZoom * mViewPortHeight) * (0.5f + ((float) mMouseOverY) / mScreenHeight - 1) + y;
+			float newX = screenBoardToCameraX(mMouseOverX, x);
+			float newY = screenBoardToCameraY(mMouseOverY, y);
 			mCameraXD = (newX - iCameraX) / delta;
 			mCameraYD = (newY - iCameraY) / delta;
 			iCameraX = newX;
@@ -248,19 +241,9 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 		} else {
 			smoothZoom(delta, reduce, intReduce);
 			smoothXY(delta, reduce, intReduce);
-			// iCameraZoom *= (float)Math.pow(Math.E,mCameraZoomD * intReduce);
-			// iCameraX += mCameraXD * intReduce;
-			// iCameraY += mCameraYD * intReduce;
-			// mCameraZoomD *= reduce;
-			// mCameraXD *= reduce;
-			// mCameraYD *= reduce;
 			mCameraUpdate = true;
 		}
 		mNewTouchEvent = false;
-
-		// iCameraZoom = correct(PHI * 4, iCameraZoom, 4 * 1024 * PHI);
-		// iCameraX = correct(0, iCameraX, Board.WIDTH);
-		// iCameraY = correct(0, iCameraY, Board.HEIGHT);
 
 		if (mCameraUpdate) {
 			mCamera.zoom = iCameraZoom;
@@ -342,8 +325,14 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 
 	private float screenToBoardY(float aY) {
 		return iCameraY + (iCameraZoom * mViewPortHeight * (1 - (aY / mScreenHeight) - 0.5f));
-		// return iCameraY + (iCameraZoom * mViewPortHeight * (aY /
-		// mScreenHeight - 0.5f));
+	}
+
+	private float screenBoardToCameraX(float aScreenX, float aBoardX) {
+		return (iCameraZoom * mViewPortWidth) * (0.5f - aScreenX / mScreenWidth) + aBoardX;
+	}
+
+	private float screenBoardToCameraY(float aScreenY, float aBoardY) {
+		return (iCameraZoom * mViewPortHeight) * (0.5f + aScreenY / mScreenHeight - 1) + aBoardY;
 	}
 
 	@Override
