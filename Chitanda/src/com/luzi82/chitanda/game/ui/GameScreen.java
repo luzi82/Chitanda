@@ -202,8 +202,12 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 			}
 			touchDiff /= touchCount;
 			if (mNewTouch) {
-				mTouchStartCameraX = iCameraX + (iCameraZoom * mViewPortWidth * (touchXAvg / mScreenWidth - 0.5f));
-				mTouchStartCameraY = iCameraY + (iCameraZoom * mViewPortHeight * (1 - (touchYAvg / mScreenHeight) - 0.5f));
+				// mTouchStartCameraX = iCameraX + (iCameraZoom * mViewPortWidth
+				// * (touchXAvg / mScreenWidth - 0.5f));
+				mTouchStartCameraX = screenToBoardX(touchXAvg);
+				// mTouchStartCameraY = iCameraY + (iCameraZoom *
+				// mViewPortHeight * (1 - (touchYAvg / mScreenHeight) - 0.5f));
+				mTouchStartCameraY = screenToBoardY(touchYAvg);
 				if (touchCount > 1) {
 					mTouchStartDiff = touchDiff;
 					mTouchStartCameraZoom = iCameraZoom;
@@ -229,7 +233,17 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 				mCameraUpdate = true;
 			}
 		} else if (mMouseScrolled != 0) {
+			float x = screenToBoardX(mMouseOverX);
+			float y = screenToBoardY(mMouseOverY);
 			mCameraZoomD -= mMouseScrolled * PHI;
+			smoothZoom(delta, reduce, intReduce);
+			float newX = (iCameraZoom * mViewPortWidth) * (0.5f - ((float) mMouseOverX) / mScreenWidth) + x;
+			float newY = (iCameraZoom * mViewPortHeight) * (0.5f + ((float) mMouseOverY) / mScreenHeight - 1) + y;
+			mCameraXD = (newX - iCameraX) / delta;
+			mCameraYD = (newY - iCameraY) / delta;
+			iCameraX = newX;
+			iCameraY = newY;
+			mCameraUpdate = true;
 			mMouseScrolled = 0;
 		} else {
 			smoothZoom(delta, reduce, intReduce);
@@ -320,6 +334,16 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 				gl.glPopMatrix();
 			}
 		}
+	}
+
+	private float screenToBoardX(float aX) {
+		return iCameraX + (iCameraZoom * mViewPortWidth * (aX / mScreenWidth - 0.5f));
+	}
+
+	private float screenToBoardY(float aY) {
+		return iCameraY + (iCameraZoom * mViewPortHeight * (1 - (aY / mScreenHeight) - 0.5f));
+		// return iCameraY + (iCameraZoom * mViewPortHeight * (aY /
+		// mScreenHeight - 0.5f));
 	}
 
 	@Override
