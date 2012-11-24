@@ -65,6 +65,11 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 	private float mTouchStartDiff;
 	private float mTouchStartCameraZoom;
 
+	// desktop handle
+	private int mMouseOverX;
+	private int mMouseOverY;
+	private int mMouseScrolled;
+
 	// private boolean mMoveEnabled;
 
 	public GameScreen(ChitandaGame aParent) {
@@ -223,6 +228,9 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 				iCameraY = newY;
 				mCameraUpdate = true;
 			}
+		} else if (mMouseScrolled != 0) {
+			mCameraZoomD -= mMouseScrolled * PHI;
+			mMouseScrolled = 0;
 		} else {
 			smoothZoom(delta, reduce, intReduce);
 			smoothXY(delta, reduce, intReduce);
@@ -347,6 +355,19 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 		mTouching[pointer] = true;
 		mTouchX[pointer] = x;
 		mTouchY[pointer] = y;
+		return true;
+	}
+
+	@Override
+	public boolean touchMoved(int x, int y) {
+		mMouseOverX = x;
+		mMouseOverY = y;
+		return true;
+	}
+
+	@Override
+	public boolean scrolled(int amount) {
+		mMouseScrolled += amount;
 		return true;
 	}
 
