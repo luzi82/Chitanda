@@ -71,7 +71,8 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 	private int mMouseOverY;
 	private int mMouseScrolled;
 
-	// private boolean mMoveEnabled;
+	// screen density
+	private float mBlockPerPixelBorder;
 
 	public GameScreen(ChitandaGame aParent) {
 		super(aParent);
@@ -348,12 +349,11 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 		float blockPerPixel = iCameraZoom / minSide;
 		if (blockPerPixel > 4) {
 		} else if (blockPerPixel > 1) {
-		} else if (blockPerPixel > 1f / 8) {
+		} else if (blockPerPixel > mBlockPerPixelBorder) {
 		} else {
 			aGl.glDisable(GL10.GL_BLEND);
 			aGl.glBlendFunc(GL10.GL_ONE, GL10.GL_ZERO);
 			aGl.glDisable(GL10.GL_TEXTURE_2D);
-			aGl.glColor4f(0f, 0f, 0f, 1f);
 			int minX = (int) Math.floor(screenToBoardX(0));
 			int maxX = (int) Math.ceil(screenToBoardX(mScreenWidth));
 			int minY = (int) Math.floor(screenToBoardY(mScreenHeight));
@@ -369,6 +369,11 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 					if (mBoard.get(x, y)) {
 						aGl.glPushMatrix();
 						aGl.glTranslatef(0, y, 0);
+						if ((x + y) % 2 == 0) {
+							aGl.glColor4f(0f, 0f, 0f, 1f);
+						} else {
+							aGl.glColor4f(0.1f, 0.1f, 0.1f, 1f);
+						}
 						mBlockMesh.render(GL10.GL_TRIANGLE_STRIP);
 						aGl.glPopMatrix();
 					}
@@ -407,6 +412,7 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 		mViewPortHeight = (mScreenWidth > mScreenHeight) ? 1 : (((float) mScreenHeight) / mScreenWidth);
 		mCamera.viewportWidth = mViewPortWidth;
 		mCamera.viewportHeight = mViewPortHeight;
+		mBlockPerPixelBorder = 10f / 6 / Gdx.graphics.getPpcX();
 	}
 
 	@Override
