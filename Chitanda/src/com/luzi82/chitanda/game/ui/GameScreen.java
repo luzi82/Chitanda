@@ -48,7 +48,6 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 	private float iCameraZoom;
 	private float iCameraX;
 	private float iCameraY;
-	private boolean mCameraUpdate;
 	private float mCameraZoomD;
 	private float mCameraXD;
 	private float mCameraYD;
@@ -81,7 +80,6 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 		iCameraZoom = Math.min(Board.WIDTH, Board.HEIGHT);
 		iCameraX = Board.WIDTH / 2;
 		iCameraY = Board.HEIGHT / 2;
-		mCameraUpdate = true;
 	}
 
 	@Override
@@ -163,14 +161,20 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 	}
 
 	@Override
-	public void onScreenRender(float delta) {
-		int i;
-
-		float reduce = (float) Math.pow(SMOOTH_REDUCE, delta);
-		float intReduce = (reduce - 1) * DIV_LN_SMOOTH_REDUCE;
-
+	public void onScreenRender(float aDelta) {
 		GL10 gl = Gdx.graphics.getGL10();
 		gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
+
+		updateCamera(aDelta, gl);
+		drawImage(gl);
+		drawLine(gl);
+	}
+
+	private void updateCamera(float aDelta, GL10 aGl) {
+		int i;
+
+		float reduce = (float) Math.pow(SMOOTH_REDUCE, aDelta);
+		float intReduce = (reduce - 1) * DIV_LN_SMOOTH_REDUCE;
 
 		float touchXAvg = 0;
 		float touchYAvg = 0;
@@ -213,61 +217,59 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 			} else if (mNewTouchEvent) {
 				if (touchCount > 1) {
 					float newZoom = mTouchStartCameraZoom * mTouchStartDiff / touchDiff;
-					mCameraZoomD = ((float) Math.log(newZoom / iCameraZoom)) / delta;
+					mCameraZoomD = ((float) Math.log(newZoom / iCameraZoom)) / aDelta;
 					iCameraZoom = newZoom;
 				} else {
-					smoothZoom(delta, reduce, intReduce);
+					smoothZoom(aDelta, reduce, intReduce);
 				}
 				float newX = screenBoardToCameraX(touchXAvg, mTouchStartCameraX);
 				float newY = screenBoardToCameraY(touchYAvg, mTouchStartCameraY);
-				mCameraXD = (newX - iCameraX) / delta;
-				mCameraYD = (newY - iCameraY) / delta;
+				mCameraXD = (newX - iCameraX) / aDelta;
+				mCameraYD = (newY - iCameraY) / aDelta;
 				iCameraX = newX;
 				iCameraY = newY;
-				mCameraUpdate = true;
 			}
 		} else if (mMouseScrolled != 0) {
 			float x = screenToBoardX(mMouseOverX);
 			float y = screenToBoardY(mMouseOverY);
 			mCameraZoomD -= mMouseScrolled * PHI;
-			smoothZoom(delta, reduce, intReduce);
+			smoothZoom(aDelta, reduce, intReduce);
 			float newX = screenBoardToCameraX(mMouseOverX, x);
 			float newY = screenBoardToCameraY(mMouseOverY, y);
-			mCameraXD = (newX - iCameraX) / delta;
-			mCameraYD = (newY - iCameraY) / delta;
+			mCameraXD = (newX - iCameraX) / aDelta;
+			mCameraYD = (newY - iCameraY) / aDelta;
 			iCameraX = newX;
 			iCameraY = newY;
-			mCameraUpdate = true;
 			mMouseScrolled = 0;
 		} else {
-			smoothZoom(delta, reduce, intReduce);
-			smoothXY(delta, reduce, intReduce);
-			mCameraUpdate = true;
+			smoothZoom(aDelta, reduce, intReduce);
+			smoothXY(aDelta, reduce, intReduce);
 		}
 		mNewTouchEvent = false;
 
-		if (mCameraUpdate) {
-			mCamera.zoom = iCameraZoom;
-			mCamera.position.x = iCameraX;
-			mCamera.position.y = iCameraY;
-			mCamera.update();
-			mCameraUpdate = false;
-		}
-		mCamera.apply(gl);
+		mCamera.zoom = iCameraZoom;
+		mCamera.position.x = iCameraX;
+		mCamera.position.y = iCameraY;
+		mCamera.update();
+		mCamera.apply(aGl);
+	}
 
-		// back image
-		gl.glDisable(GL10.GL_BLEND);
-		gl.glBlendFunc(GL10.GL_ONE, GL10.GL_ZERO);
-		gl.glEnable(GL10.GL_TEXTURE_2D);
+	private void drawImage(GL10 aGl) {
+		aGl.glDisable(GL10.GL_BLEND);
+		aGl.glBlendFunc(GL10.GL_ONE, GL10.GL_ZERO);
+		aGl.glEnable(GL10.GL_TEXTURE_2D);
 		mBaseTexture0.bind();
 		mBaseMesh0.render(GL10.GL_TRIANGLE_STRIP);
 		mBaseTexture1.bind();
 		mBaseMesh1.render(GL10.GL_TRIANGLE_STRIP);
+	}
 
-		// line
-		gl.glEnable(GL10.GL_BLEND);
-		gl.glBlendFunc(GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA);
-		gl.glDisable(GL10.GL_TEXTURE_2D);
+	private void drawLine(GL10 aGl) {
+		int i;
+
+		aGl.glEnable(GL10.GL_BLEND);
+		aGl.glBlendFunc(GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA);
+		aGl.glDisable(GL10.GL_TEXTURE_2D);
 
 		if (iCameraZoom < ZOOM_MIN * PHI * PHI) {
 			float a = iCameraZoom / (ZOOM_MIN * PHI);
@@ -292,11 +294,11 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 				if (max > Board.HEIGHT)
 					max = Board.HEIGHT;
 				for (i = min; i < max; ++i) {
-					gl.glPushMatrix();
-					gl.glTranslatef(0, i, 0);
-					gl.glScalef(Board.WIDTH, 1, 1);
+					aGl.glPushMatrix();
+					aGl.glTranslatef(0, i, 0);
+					aGl.glScalef(Board.WIDTH, 1, 1);
 					mLineMeshH.render(GL10.GL_TRIANGLES);
-					gl.glPopMatrix();
+					aGl.glPopMatrix();
 				}
 
 				min = (int) Math.floor(iCameraX - iCameraZoom * mViewPortWidth / 2);
@@ -305,17 +307,17 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 					min = 0;
 				if (max > Board.WIDTH)
 					max = Board.WIDTH;
-				gl.glPushMatrix();
-				gl.glRotatef(90, 0, 0, 1);
-				gl.glScalef(1, -1, 1);
+				aGl.glPushMatrix();
+				aGl.glRotatef(90, 0, 0, 1);
+				aGl.glScalef(1, -1, 1);
 				for (i = min; i < max; ++i) {
-					gl.glPushMatrix();
-					gl.glTranslatef(0, i, 0);
-					gl.glScalef(Board.HEIGHT, 1, 1);
+					aGl.glPushMatrix();
+					aGl.glTranslatef(0, i, 0);
+					aGl.glScalef(Board.HEIGHT, 1, 1);
 					mLineMeshH.render(GL10.GL_TRIANGLES);
-					gl.glPopMatrix();
+					aGl.glPopMatrix();
 				}
-				gl.glPopMatrix();
+				aGl.glPopMatrix();
 			}
 		}
 	}
@@ -342,7 +344,6 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 		mViewPortHeight = (mScreenWidth > mScreenHeight) ? 1 : (((float) mScreenHeight) / mScreenWidth);
 		mCamera.viewportWidth = mViewPortWidth;
 		mCamera.viewportHeight = mViewPortHeight;
-		mCameraUpdate = true;
 	}
 
 	@Override
