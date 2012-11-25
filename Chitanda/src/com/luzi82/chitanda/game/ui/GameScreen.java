@@ -352,10 +352,12 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 				aGl.glPushMatrix();
 				aGl.glTranslatef(x, 0, 0);
 				for (int y = minY; y < maxY; ++y) {
-					aGl.glPushMatrix();
-					aGl.glTranslatef(0, y, 0);
-					mBlockMesh.render(GL10.GL_TRIANGLE_STRIP);
-					aGl.glPopMatrix();
+					if (mBoard.get(x, y)) {
+						aGl.glPushMatrix();
+						aGl.glTranslatef(0, y, 0);
+						mBlockMesh.render(GL10.GL_TRIANGLE_STRIP);
+						aGl.glPopMatrix();
+					}
 				}
 				aGl.glPopMatrix();
 			}
