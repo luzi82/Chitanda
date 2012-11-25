@@ -42,6 +42,8 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 			8 * 7 - 1,//
 	};
 
+	private Mesh mBlockMesh;
+
 	private float mViewPortWidth;
 	private float mViewPortHeight;
 
@@ -142,6 +144,19 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 				0f, 1f, 0f, 0f, 0f, 0f, LINE_ALPHA,//
 		};
 
+		va = new VertexAttributes( //
+				new VertexAttribute(VertexAttributes.Usage.Position, 3, "position") //
+		);
+
+		mBlockMesh = new Mesh(true, 4, 4, va);
+		mBlockMesh.setVertices(new float[] {//
+				0f, 1f, 0f,//
+						1f, 1f, 0f,//
+						0f, 0f, 0f,//
+						1f, 0f, 0f,//
+				});
+		mBlockMesh.setIndices(new short[] { 0, 1, 2, 3 });
+
 		gl.glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
 		gl.glDisable(GL10.GL_DEPTH_TEST);
 
@@ -168,6 +183,7 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 		updateCamera(aDelta, gl);
 		drawImage(gl);
 		drawLine(gl);
+		drawBlock(gl);
 	}
 
 	private void updateCamera(float aDelta, GL10 aGl) {
@@ -320,6 +336,31 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 				aGl.glPopMatrix();
 			}
 		}
+	}
+
+	private void drawBlock(GL10 aGl) {
+		aGl.glDisable(GL10.GL_BLEND);
+		aGl.glBlendFunc(GL10.GL_ONE, GL10.GL_ZERO);
+		aGl.glDisable(GL10.GL_TEXTURE_2D);
+		aGl.glColor4f(0f, 0f, 0f, 1f);
+		if (iCameraZoom < ZOOM_MIN * PHI * PHI) {
+			int minX = (int) Math.floor(screenToBoardX(0));
+			int maxX = (int) Math.ceil(screenToBoardX(mScreenWidth));
+			int minY = (int) Math.floor(screenToBoardY(mScreenHeight));
+			int maxY = (int) Math.ceil(screenToBoardY(0));
+			for (int x = minX; x < maxX; ++x) {
+				aGl.glPushMatrix();
+				aGl.glTranslatef(x, 0, 0);
+				for (int y = minY; y < maxY; ++y) {
+					aGl.glPushMatrix();
+					aGl.glTranslatef(0, y, 0);
+					mBlockMesh.render(GL10.GL_TRIANGLE_STRIP);
+					aGl.glPopMatrix();
+				}
+				aGl.glPopMatrix();
+			}
+		}
+		aGl.glColor4f(1f, 1f, 1f, 1f);
 	}
 
 	private float screenToBoardX(float aX) {
