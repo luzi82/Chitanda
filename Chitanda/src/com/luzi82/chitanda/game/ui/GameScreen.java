@@ -145,6 +145,7 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 		};
 
 		gl.glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
+		gl.glDisable(GL10.GL_DEPTH_TEST);
 
 		// mTouching = new boolean[TOUCH_MAX];
 		// mLastX = new int[TOUCH_MAX];
