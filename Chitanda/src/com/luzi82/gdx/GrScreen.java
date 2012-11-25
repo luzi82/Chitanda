@@ -1,5 +1,6 @@
 package com.luzi82.gdx;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 
 import com.badlogic.gdx.InputProcessor;
@@ -40,7 +41,7 @@ public abstract class GrScreen<G extends GrGame> implements Screen, InputProcess
 		iLogger.debug("resize");
 		mScreenWidth = aWidth;
 		mScreenHeight = aHeight;
-		if(iMemberLoaded)
+		if (iMemberLoaded)
 			onScreenResize();
 	}
 
@@ -85,12 +86,10 @@ public abstract class GrScreen<G extends GrGame> implements Screen, InputProcess
 				String n = f.getName();
 				f.setAccessible(true);
 				if (n.startsWith("m")) {
+					iLogger.debug(n);
 					try {
 						Object o = f.get(this);
-						if (o instanceof Disposable) {
-							Disposable d = (Disposable) o;
-							d.dispose();
-						}
+						deepDispose(o);
 						if (!f.getType().isPrimitive())
 							f.set(this, null);
 					} catch (IllegalArgumentException e) {
@@ -104,36 +103,59 @@ public abstract class GrScreen<G extends GrGame> implements Screen, InputProcess
 		}
 		iMemberLoaded = false;
 	}
-	
+
+	private void deepDispose(Object mObject) {
+		if (mObject == null)
+			return;
+		Class<?> c = mObject.getClass();
+		if (c.isPrimitive()) {
+			// do nothing
+		} else if (Disposable.class.isAssignableFrom(c)) {
+			Disposable d = (Disposable) mObject;
+			d.dispose();
+		} else if (c.isArray()) {
+			Class<?> cc = c.getComponentType();
+			if (cc.isPrimitive()) {
+				// do nothing
+			} else {
+				for (int i = 0; i < Array.getLength(mObject); ++i) {
+					Object o = Array.get(mObject, i);
+					deepDispose(o);
+					Array.set(mObject, i, null);
+				}
+			}
+		}
+	}
+
 	protected void onScreenLoad() {
 		// dummy
 	}
 
-	protected void onScreenResize(){
-		// dummy
-	}
-	
-	protected void onScreenShow(){
-		// dummy
-	}
-	
-	protected void onScreenResume(){
-		// dummy
-	}
-	
-	protected void onScreenRender(float aDelta){
-		// dummy
-	}
-	
-	protected void onScreenHide(){
+	protected void onScreenResize() {
 		// dummy
 	}
 
-	protected void onScreenPause(){
+	protected void onScreenShow() {
 		// dummy
 	}
-	
-	protected void onScreenDispose(){
+
+	protected void onScreenResume() {
+		// dummy
+	}
+
+	protected void onScreenRender(float aDelta) {
+		// dummy
+	}
+
+	protected void onScreenHide() {
+		// dummy
+	}
+
+	protected void onScreenPause() {
+		// dummy
+	}
+
+	protected void onScreenDispose() {
 		// dummy
 	}
 
