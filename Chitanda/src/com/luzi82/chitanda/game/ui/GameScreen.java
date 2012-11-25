@@ -26,8 +26,8 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 
 	private OrthographicCamera mCamera;
 
-	private Pixmap mBasePixmap0;
-	private Pixmap mBasePixmap1;
+	// private Pixmap mBasePixmap0;
+	// private Pixmap mBasePixmap1;
 	private Texture mBaseTexture0;
 	private Texture mBaseTexture1;
 	private Mesh mBaseMesh0;
@@ -93,10 +93,15 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 
 		mCamera = new OrthographicCamera();
 
-		mBasePixmap0 = new Pixmap(Gdx.files.internal("data/chitanda0.png"));
-		mBasePixmap1 = new Pixmap(Gdx.files.internal("data/chitanda1.png"));
-		mBaseTexture0 = new Texture(mBasePixmap0, true);
-		mBaseTexture1 = new Texture(mBasePixmap1, true);
+		Pixmap tmpPixmap;
+		tmpPixmap = new Pixmap(Gdx.files.internal("data/chitanda0.png"));
+		mBaseTexture0 = new Texture(tmpPixmap, true);
+		tmpPixmap.dispose();
+		tmpPixmap = null;
+		tmpPixmap = new Pixmap(Gdx.files.internal("data/chitanda1.png"));
+		mBaseTexture1 = new Texture(tmpPixmap, true);
+		tmpPixmap.dispose();
+		tmpPixmap = null;
 
 		VertexAttributes va = new VertexAttributes( //
 				new VertexAttribute(VertexAttributes.Usage.Position, 3, "position"),//
