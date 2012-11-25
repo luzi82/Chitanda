@@ -24,7 +24,7 @@ public class GrScreenTest {
 
 		class T extends GrScreen<GrGame> {
 			@SuppressWarnings("unused")
-			private D mD = new D();
+			public D mD = new D();
 
 			protected T(GrGame aParent) {
 				super(aParent);
@@ -35,7 +35,7 @@ public class GrScreenTest {
 		mStaticV = 0;
 		t.dispose();
 		assertEquals(1, mStaticV);
-
+		assertNull(t.mD);
 	}
 
 	@Test
@@ -49,7 +49,7 @@ public class GrScreenTest {
 		}
 
 		class T extends GrScreen<GrGame> {
-			private D[] mD = new D[1];
+			public D[] mD = new D[1];
 
 			protected T(GrGame aParent) {
 				super(aParent);
@@ -61,7 +61,7 @@ public class GrScreenTest {
 		mStaticV = 0;
 		t.dispose();
 		assertEquals(1, mStaticV);
-
+		assertNull(t.mD);
 	}
 
 	@Test
@@ -75,7 +75,7 @@ public class GrScreenTest {
 		}
 
 		class T extends GrScreen<GrGame> {
-			private D[][] mD = new D[1][1];
+			public D[][] mD = new D[1][1];
 
 			protected T(GrGame aParent) {
 				super(aParent);
@@ -87,7 +87,7 @@ public class GrScreenTest {
 		mStaticV = 0;
 		t.dispose();
 		assertEquals(1, mStaticV);
-
+		assertNull(t.mD);
 	}
 
 }
