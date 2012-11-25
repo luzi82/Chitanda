@@ -348,6 +348,10 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 			int maxX = (int) Math.ceil(screenToBoardX(mScreenWidth));
 			int minY = (int) Math.floor(screenToBoardY(mScreenHeight));
 			int maxY = (int) Math.ceil(screenToBoardY(0));
+			minX = minMax(0, minX, Board.WIDTH);
+			maxX = minMax(0, maxX, Board.WIDTH);
+			minY = minMax(0, minY, Board.HEIGHT);
+			maxY = minMax(0, maxY, Board.HEIGHT);
 			for (int x = minX; x < maxX; ++x) {
 				aGl.glPushMatrix();
 				aGl.glTranslatef(x, 0, 0);
@@ -363,6 +367,12 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 			}
 		}
 		aGl.glColor4f(1f, 1f, 1f, 1f);
+	}
+
+	private int minMax(int aMin, int aV, int aMax) {
+		aV = Math.max(aMin, aV);
+		aV = Math.min(aMax, aV);
+		return aV;
 	}
 
 	private float screenToBoardX(float aX) {
