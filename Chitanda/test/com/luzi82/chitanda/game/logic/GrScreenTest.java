@@ -23,7 +23,6 @@ public class GrScreenTest {
 		}
 
 		class T extends GrScreen<GrGame> {
-			@SuppressWarnings("unused")
 			public D mD = new D();
 
 			protected T(GrGame aParent) {
