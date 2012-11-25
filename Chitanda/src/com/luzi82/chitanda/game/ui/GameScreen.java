@@ -339,11 +339,16 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 	}
 
 	private void drawBlock(GL10 aGl) {
-		aGl.glDisable(GL10.GL_BLEND);
-		aGl.glBlendFunc(GL10.GL_ONE, GL10.GL_ZERO);
-		aGl.glDisable(GL10.GL_TEXTURE_2D);
-		aGl.glColor4f(0f, 0f, 0f, 1f);
-		if (iCameraZoom < ZOOM_MIN * PHI * PHI) {
+		int minSide = Math.min(mScreenWidth, mScreenHeight);
+		float blockPerPixel = iCameraZoom / minSide;
+		if (blockPerPixel > 4) {
+		} else if (blockPerPixel > 1) {
+		} else if (blockPerPixel > 1f / 8) {
+		} else {
+			aGl.glDisable(GL10.GL_BLEND);
+			aGl.glBlendFunc(GL10.GL_ONE, GL10.GL_ZERO);
+			aGl.glDisable(GL10.GL_TEXTURE_2D);
+			aGl.glColor4f(0f, 0f, 0f, 1f);
 			int minX = (int) Math.floor(screenToBoardX(0));
 			int maxX = (int) Math.ceil(screenToBoardX(mScreenWidth));
 			int minY = (int) Math.floor(screenToBoardY(mScreenHeight));
@@ -365,8 +370,8 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 				}
 				aGl.glPopMatrix();
 			}
+			aGl.glColor4f(1f, 1f, 1f, 1f);
 		}
-		aGl.glColor4f(1f, 1f, 1f, 1f);
 	}
 
 	private int minMax(int aMin, int aV, int aMax) {
