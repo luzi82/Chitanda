@@ -126,12 +126,6 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 		);
 
 		mLineMeshH = new Mesh(false, 8, 12, va);
-		mLineMeshH.setIndices(new short[] { //
-				0, 1, 2, //
-						1, 2, 3, //
-						4, 5, 6, //
-						5, 6, 7 //
-				});
 		mLineMeshHF = new float[] { //
 		1f, 0f, 0f, 0f, 0f, 0f, LINE_ALPHA,//
 				0f, 0f, 0f, 0f, 0f, 0f, LINE_ALPHA,//
@@ -143,6 +137,12 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 				1f, 1f, 0f, 0f, 0f, 0f, LINE_ALPHA,//
 				0f, 1f, 0f, 0f, 0f, 0f, LINE_ALPHA,//
 		};
+		mLineMeshH.setIndices(new short[] { //
+				0, 1, 2, //
+						1, 2, 3, //
+						4, 5, 6, //
+						5, 6, 7 //
+				});
 
 		va = new VertexAttributes( //
 				new VertexAttribute(VertexAttributes.Usage.Position, 3, "position") //
