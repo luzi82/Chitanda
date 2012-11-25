@@ -1,5 +1,9 @@
 package com.luzi82.chitanda.game.ui;
 
+import java.lang.ref.WeakReference;
+import java.util.Arrays;
+import java.util.TreeMap;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL10;
 import com.badlogic.gdx.graphics.Mesh;
@@ -8,6 +12,7 @@ import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.VertexAttribute;
 import com.badlogic.gdx.graphics.VertexAttributes;
+import com.badlogic.gdx.utils.Disposable;
 import com.luzi82.chitanda.ChitandaGame;
 import com.luzi82.chitanda.game.logic.Board;
 import com.luzi82.gdx.GrScreen;
@@ -43,6 +48,8 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 	};
 
 	private Mesh mBlockMesh;
+
+	private Mesh mBlockGroupMesh;
 
 	private float mViewPortWidth;
 	private float mViewPortHeight;
@@ -104,7 +111,8 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 		tmpPixmap.dispose();
 		tmpPixmap = null;
 
-		VertexAttributes va = new VertexAttributes( //
+		VertexAttributes va;
+		va = new VertexAttributes( //
 				new VertexAttribute(VertexAttributes.Usage.Position, 3, "position"),//
 				new VertexAttribute(VertexAttributes.Usage.TextureCoordinates, 2, "texturecoordinates")//
 		);
@@ -162,6 +170,22 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 						1f, 0f, 0f,//
 				});
 		mBlockMesh.setIndices(new short[] { 0, 1, 2, 3 });
+
+		mCellTexturePixmap = new Pixmap(CELLTEXTURE_SIZE, CELLTEXTURE_SIZE, Pixmap.Format.RGBA8888);
+
+		va = new VertexAttributes( //
+				new VertexAttribute(VertexAttributes.Usage.Position, 3, "position"),//
+				new VertexAttribute(VertexAttributes.Usage.TextureCoordinates, 2, "texturecoordinates")//
+		);
+
+		mBlockGroupMesh = new Mesh(true, 4, 4, va);
+		mBlockGroupMesh.setVertices(new float[] { //
+				0, CELLTEXTURE_SIZE, 0f, 0f, 0f,//
+						CELLTEXTURE_SIZE, CELLTEXTURE_SIZE, 0f, 1f, 0f,//
+						0f, 0f, 0f, 0f, 1f,//
+						CELLTEXTURE_SIZE, 0f, 0f, 1f, 1f,//
+				});
+		mBlockGroupMesh.setIndices(new short[] { 0, 1, 2, 3 });
 
 		gl.glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
 		gl.glDisable(GL10.GL_DEPTH_TEST);
@@ -350,6 +374,26 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 		if (blockPerPixel > 4) {
 		} else if (blockPerPixel > 1) {
 		} else if (blockPerPixel > mBlockPerPixelBorder) {
+			// iLogger.debug("asdf");
+			// aGl.glDisable(GL10.GL_BLEND);
+			// aGl.glBlendFunc(GL10.GL_ONE, GL10.GL_ZERO);
+			// aGl.glDisable(GL10.GL_TEXTURE_2D);
+			// aGl.glColor4f(0f, 0f, 0f, 1f);
+			aGl.glEnable(GL10.GL_BLEND);
+			aGl.glBlendFunc(GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA);
+			aGl.glEnable(GL10.GL_TEXTURE_2D);
+			aGl.glColor4f(1f, 1f, 1f, 1f);
+			int minX = (int) Math.floor(screenToBoardX(0));
+			int maxX = (int) Math.ceil(screenToBoardX(mScreenWidth));
+			int minY = (int) Math.floor(screenToBoardY(mScreenHeight));
+			int maxY = (int) Math.ceil(screenToBoardY(0));
+			minX = minMax(0, minX, Board.WIDTH);
+			maxX = minMax(0, maxX, Board.WIDTH);
+			minY = minMax(0, minY, Board.HEIGHT);
+			maxY = minMax(0, maxY, Board.HEIGHT);
+			updateCellContent(minX, maxX, minY, maxY);
+			drawCellTextureV(aGl, minX, maxX, minY, maxY);
+			// aGl.glColor4f(1f, 1f, 1f, 1f);
 		} else {
 			aGl.glDisable(GL10.GL_BLEND);
 			aGl.glBlendFunc(GL10.GL_ONE, GL10.GL_ZERO);
@@ -413,6 +457,7 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 		mCamera.viewportWidth = mViewPortWidth;
 		mCamera.viewportHeight = mViewPortHeight;
 		mBlockPerPixelBorder = 10f / 6 / Gdx.graphics.getPpcX();
+		updateCellTextureV();
 	}
 
 	@Override
@@ -491,6 +536,176 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 			return s1;
 		}
 
+	}
+
+	static final private int CELLTEXTURE_SIZE = 64;
+
+	private class CellTexture implements Disposable, Comparable<CellTexture> {
+		int mX = -1;
+		int mY = -1;
+		int mIdx = -1;
+		float mDistanceSq = 0;
+		Texture mTexture = new Texture(CELLTEXTURE_SIZE, CELLTEXTURE_SIZE, Pixmap.Format.RGBA8888);
+
+		@Override
+		public void dispose() {
+			if (mTexture != null)
+				mTexture.dispose();
+			mTexture = null;
+		}
+
+		@Override
+		public int compareTo(CellTexture o) {
+			// reverse sort mDistanceSq, farest get first
+			return Float.compare(o.mDistanceSq, mDistanceSq);
+		}
+
+		public void calcDistance(float mMinX, float mMaxX, float mMinY, float mMaxY) {
+			if ((mX == -1) || (mY == -1)) {
+				mDistanceSq = Float.MAX_VALUE;
+				return;
+			}
+			float x = mX * CELLTEXTURE_SIZE;
+			float y = mY * CELLTEXTURE_SIZE;
+			float t;
+			mMinX -= CELLTEXTURE_SIZE;
+			mMinY -= CELLTEXTURE_SIZE;
+			mDistanceSq = 0;
+			if (x < mMinX) {
+				t = mMinX - x;
+				mDistanceSq += t * t;
+			}
+			if (mMaxX < x) {
+				t = x - mMaxX;
+				mDistanceSq += t * t;
+			}
+			if (y < mMinY) {
+				t = mMinY - y;
+				mDistanceSq += t * t;
+			}
+			if (mMaxY < y) {
+				t = y - mMaxY;
+				mDistanceSq += t * t;
+			}
+		}
+
+		public void update(int aX, int aY, int aIdx) {
+			mX = aX;
+			mY = aY;
+			mIdx = aIdx;
+			int offsetX = mX * CELLTEXTURE_SIZE;
+			int offsetY = mY * CELLTEXTURE_SIZE;
+			int c = ((aX + aY) % 2 == 0) ? 0x000000ff : 0x0f0f0fff;
+			for (int dx = 0; dx < CELLTEXTURE_SIZE; ++dx) {
+				int x = offsetX + dx;
+				for (int dy = 0; dy < CELLTEXTURE_SIZE; ++dy) {
+					int y = offsetY + dy;
+					boolean v = mBoard.get(x, y);
+					mCellTexturePixmap.drawPixel(dx, dy, v ? c : 0x00000000);
+				}
+			}
+			mTexture.draw(mCellTexturePixmap, 0, 0);
+		}
+	}
+
+	private CellTexture[] mCellTextureV;
+	private TreeMap<Integer, WeakReference<CellTexture>> mCellTextureM;
+	private Pixmap mCellTexturePixmap;
+
+	private void updateCellTextureV() {
+		// TODO object reuse
+		int ctvw = ((mScreenWidth + (CELLTEXTURE_SIZE - 1)) / CELLTEXTURE_SIZE) + 1;
+		int ctvh = ((mScreenHeight + (CELLTEXTURE_SIZE - 1)) / CELLTEXTURE_SIZE) + 1;
+		int len = ctvw * ctvh;
+		if (mCellTextureV != null) {
+			if (mCellTextureV.length == len)
+				return;
+			for (int i = 0; i < mCellTextureV.length; ++i) {
+				CellTexture ct = mCellTextureV[i];
+				if (ct != null)
+					ct.dispose();
+				mCellTextureV[i] = null;
+			}
+			mCellTextureV = null;
+		}
+		mCellTextureV = new CellTexture[len];
+		for (int i = 0; i < mCellTextureV.length; ++i) {
+			mCellTextureV[i] = new CellTexture();
+		}
+		mCellTextureM = new TreeMap<Integer, WeakReference<CellTexture>>();
+	}
+
+	private void updateCellContent(float aMinX, float aMaxX, float aMinY, float aMaxY) {
+		int minCX = (int) Math.floor(aMinX / CELLTEXTURE_SIZE);
+		int maxCX = (int) Math.ceil(aMaxX / CELLTEXTURE_SIZE);
+		int minCY = (int) Math.floor(aMinY / CELLTEXTURE_SIZE);
+		int maxCY = (int) Math.ceil(aMaxY / CELLTEXTURE_SIZE);
+		boolean good = true;
+		fullTest: for (int x = minCX; x < maxCX; ++x) {
+			for (int y = minCY; y < maxCY; ++y) {
+				int idx = (x << 16) + y;
+				if (!mCellTextureM.containsKey(idx)) {
+					good = false;
+					break fullTest;
+				}
+			}
+		}
+		if (!good) {
+//			iLogger.debug("!good");
+			int offset = 0;
+			sortCellTextureV(aMinX, aMaxX, aMinY, aMaxY);
+			for (int x = minCX; x < maxCX; ++x) {
+				for (int y = minCY; y < maxCY; ++y) {
+					int idx = (x << 16) + y;
+					if (!mCellTextureM.containsKey(idx)) {
+						CellTexture ct = mCellTextureV[offset++];
+						if (ct.mDistanceSq <= 0) {
+							throw new AssertionError();
+						}
+						// iLogger.debug(String.format("remove %08x", ct.mIdx));
+						mCellTextureM.remove(ct.mIdx);
+						ct.update(x, y, idx);
+						mCellTextureM.put(idx, new WeakReference<CellTexture>(ct));
+					}
+				}
+			}
+		}
+	}
+
+	private void sortCellTextureV(float aMinX, float aMaxX, float aMinY, float aMaxY) {
+		for (int i = 0; i < mCellTextureV.length; ++i) {
+			mCellTextureV[i].calcDistance(aMinX, aMaxX, aMinY, aMaxY);
+		}
+		Arrays.sort(mCellTextureV);
+	}
+
+	private void drawCellTextureV(GL10 aGl, float aMinX, float aMaxX, float aMinY, float aMaxY) {
+		int minCX = (int) Math.floor(aMinX / CELLTEXTURE_SIZE);
+		int maxCX = (int) Math.ceil(aMaxX / CELLTEXTURE_SIZE);
+		int minCY = (int) Math.floor(aMinY / CELLTEXTURE_SIZE);
+		int maxCY = (int) Math.ceil(aMaxY / CELLTEXTURE_SIZE);
+		// iLogger.debug("minCX " + minCX);
+		for (int x = minCX; x < maxCX; ++x) {
+			aGl.glPushMatrix();
+			aGl.glTranslatef(x * CELLTEXTURE_SIZE, 0, 0);
+			for (int y = minCY; y < maxCY; ++y) {
+				aGl.glPushMatrix();
+				aGl.glTranslatef(0, y * CELLTEXTURE_SIZE, 0);
+				int idx = (x << 16) + y;
+				CellTexture ct;
+				try {
+					ct = mCellTextureM.get(idx).get();
+				} catch (NullPointerException npe) {
+					// iLogger.debug(String.format("npe %08x", idx));
+					throw npe;
+				}
+				ct.mTexture.bind();
+				mBlockGroupMesh.render(GL10.GL_TRIANGLE_STRIP);
+				// mBlockMesh.render(GL10.GL_TRIANGLE_STRIP);
+				aGl.glPopMatrix();
+			}
+			aGl.glPopMatrix();
+		}
 	}
 
 }
