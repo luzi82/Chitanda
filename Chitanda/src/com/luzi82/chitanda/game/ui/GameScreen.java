@@ -10,6 +10,7 @@ import com.badlogic.gdx.graphics.Mesh;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.TextureData;
 import com.badlogic.gdx.graphics.VertexAttribute;
 import com.badlogic.gdx.graphics.VertexAttributes;
 import com.badlogic.gdx.utils.Disposable;
@@ -593,17 +594,7 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 			mX = aX;
 			mY = aY;
 			mIdx = aIdx;
-			int offsetX = mX * CELLTEXTURE_SIZE;
-			int offsetY = mY * CELLTEXTURE_SIZE;
-			int c = ((aX + aY) % 2 == 0) ? 0x000000ff : 0x0f0f0fff;
-			for (int dx = 0; dx < CELLTEXTURE_SIZE; ++dx) {
-				int x = offsetX + dx;
-				for (int dy = 0; dy < CELLTEXTURE_SIZE; ++dy) {
-					int y = offsetY + dy;
-					boolean v = mBoard.get(x, y);
-					mCellTexturePixmap.drawPixel(dx, dy, v ? c : 0x00000000);
-				}
-			}
+			mBoard.writePixmap0(mCellTexturePixmap, mX * CELLTEXTURE_SIZE, mY * CELLTEXTURE_SIZE);
 			mTexture.draw(mCellTexturePixmap, 0, 0);
 		}
 	}
@@ -651,7 +642,7 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 			}
 		}
 		if (!good) {
-//			iLogger.debug("!good");
+			// iLogger.debug("!good");
 			int offset = 0;
 			sortCellTextureV(aMinX, aMaxX, aMinY, aMaxY);
 			for (int x = minCX; x < maxCX; ++x) {
