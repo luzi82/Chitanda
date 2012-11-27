@@ -484,6 +484,22 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 		mTouching[pointer] = true;
 		mTouchX[pointer] = x;
 		mTouchY[pointer] = y;
+
+		int minSide = Math.min(mScreenWidth, mScreenHeight);
+		float blockPerPixel = iCameraZoom / minSide;
+		if (blockPerPixel <= mBlockPerPixelBorder) {
+			int bx = (int) screenToBoardX(x);
+			int by = (int) screenToBoardY(y);
+			boolean good = true;
+			good = good && (bx >= 0);
+			good = good && (bx < Board.WIDTH);
+			good = good && (by >= 0);
+			good = good && (by < Board.HEIGHT);
+			if (good) {
+				mBoard.set(bx, by, false);
+			}
+		}
+
 		return true;
 	}
 
