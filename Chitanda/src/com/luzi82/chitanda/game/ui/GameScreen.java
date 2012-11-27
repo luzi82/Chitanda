@@ -100,6 +100,22 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 		mBoard = new Board();
 		mBoard.setAll(true);
 
+		// create a hole in center
+		int cx = Board.WIDTH / 2;
+		int cy = Board.HEIGHT / 2;
+		int r = 800;
+		int rr = r * r;
+		for (int i = cx - r; i < cx + r; ++i) {
+			int dx = i - cx;
+			dx *= dx;
+			for (int j = cy - r; j < cy + r; ++j) {
+				int dy = j - cy;
+				dy *= dy;
+				int dd = dx + dy;
+				mBoard.set(i, j, dd > rr);
+			}
+		}
+
 		mCamera = new OrthographicCamera();
 
 		Pixmap tmpPixmap;
@@ -181,10 +197,10 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 
 		mBlockGroupMesh = new Mesh(true, 4, 4, va);
 		mBlockGroupMesh.setVertices(new float[] { //
-				0, CELLTEXTURE_SIZE, 0f, 0f, 0f,//
-						CELLTEXTURE_SIZE, CELLTEXTURE_SIZE, 0f, 1f, 0f,//
-						0f, 0f, 0f, 0f, 1f,//
-						CELLTEXTURE_SIZE, 0f, 0f, 1f, 1f,//
+				0, CELLTEXTURE_SIZE, 0f, 0f, 1f,//
+						CELLTEXTURE_SIZE, CELLTEXTURE_SIZE, 0f, 1f, 1f,//
+						0f, 0f, 0f, 0f, 0f,//
+						CELLTEXTURE_SIZE, 0f, 0f, 1f, 0f,//
 				});
 		mBlockGroupMesh.setIndices(new short[] { 0, 1, 2, 3 });
 

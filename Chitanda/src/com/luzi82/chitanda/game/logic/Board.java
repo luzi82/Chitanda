@@ -125,7 +125,7 @@ public class Board {
 					} else {
 						BB[out++] = (byte) 0x00;
 					}
-					b >>= 0;
+					b >>= 1;
 				}
 			}
 			offset0 += yStep;
