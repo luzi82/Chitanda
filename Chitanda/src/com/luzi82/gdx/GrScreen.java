@@ -34,20 +34,24 @@ public abstract class GrScreen<G extends GrGame> implements Screen, InputProcess
 		iLogger.debug("resume");
 		load();
 		onScreenResume();
+		onScreenResize();
 	}
 
 	@Override
 	public final void resize(int aWidth, int aHeight) {
 		iLogger.debug("resize");
+		boolean sizeChanged = (mScreenWidth != aWidth) || (mScreenHeight != aHeight);
 		mScreenWidth = aWidth;
 		mScreenHeight = aHeight;
-		if (iMemberLoaded)
+		if (iMemberLoaded && sizeChanged)
 			onScreenResize();
 	}
 
 	@Override
 	public final void render(float aDelta) {
-		onScreenRender(aDelta);
+//		iLogger.debug("render");
+		if (iMemberLoaded)
+			onScreenRender(aDelta);
 	}
 
 	@Override
@@ -66,7 +70,7 @@ public abstract class GrScreen<G extends GrGame> implements Screen, InputProcess
 
 	@Override
 	public final void dispose() {
-//		iLogger.debug("dispose");
+		// iLogger.debug("dispose");
 		onScreenDispose();
 		disposeMember();
 	}
@@ -79,23 +83,23 @@ public abstract class GrScreen<G extends GrGame> implements Screen, InputProcess
 	}
 
 	private void disposeMember() {
-//		iLogger.debug("disposeMember");
+		// iLogger.debug("disposeMember");
 		for (Class<?> c = this.getClass(); c != GrScreen.class; c = c.getSuperclass()) {
 			Field[] fv = c.getDeclaredFields();
 			for (Field f : fv) {
 				String n = f.getName();
 				f.setAccessible(true);
 				if (n.startsWith("m")) {
-//					iLogger.debug(n);
+					// iLogger.debug(n);
 					try {
 						Object o = f.get(this);
 						deepDispose(o);
 						if (!f.getType().isPrimitive())
 							f.set(this, null);
 					} catch (IllegalArgumentException e) {
-//						iLogger.debug("", e);
+						// iLogger.debug("", e);
 					} catch (IllegalAccessException e) {
-//						iLogger.debug("", e);
+						// iLogger.debug("", e);
 					}
 				}
 				f.setAccessible(false);

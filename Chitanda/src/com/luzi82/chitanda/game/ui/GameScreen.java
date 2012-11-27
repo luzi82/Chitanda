@@ -10,7 +10,6 @@ import com.badlogic.gdx.graphics.Mesh;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.TextureData;
 import com.badlogic.gdx.graphics.VertexAttribute;
 import com.badlogic.gdx.graphics.VertexAttributes;
 import com.badlogic.gdx.utils.Disposable;
@@ -276,6 +275,7 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 					mTouchStartDiff = touchDiff;
 					mTouchStartCameraZoom = iCameraZoom;
 				}
+				// mCameraZoomD = 0;
 				mNewTouch = false;
 			} else if (mNewTouchEvent) {
 				if (touchCount > 1) {
@@ -291,6 +291,16 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 				mCameraYD = (newY - iCameraY) / aDelta;
 				iCameraX = newX;
 				iCameraY = newY;
+			} else if (touchCount == 1) {
+				smoothZoom(aDelta, reduce, intReduce);
+				float newX = screenBoardToCameraX(touchXAvg, mTouchStartCameraX);
+				float newY = screenBoardToCameraY(touchYAvg, mTouchStartCameraY);
+//				mCameraXD = (newX - iCameraX) / aDelta;
+//				mCameraYD = (newY - iCameraY) / aDelta;
+				iCameraX = newX;
+				iCameraY = newY;
+				mCameraXD*=reduce;
+				mCameraYD*=reduce;
 			}
 		} else if (mMouseScrolled != 0) {
 			float x = screenToBoardX(mMouseOverX);
@@ -479,6 +489,7 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 
 	@Override
 	public boolean touchDown(int x, int y, int pointer, int button) {
+		iLogger.debug("touchDown");
 		mNewTouch = true;
 		mNewTouchEvent = true;
 		mTouching[pointer] = true;
@@ -496,7 +507,10 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 			good = good && (by >= 0);
 			good = good && (by < Board.HEIGHT);
 			if (good) {
-				mBoard.set(bx, by, false);
+				if (mBoard.get(bx, by)) {
+					mBoard.set(bx, by, false);
+					mCellTextureM.clear();
+				}
 			}
 		}
 
@@ -505,6 +519,7 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 
 	@Override
 	public boolean touchUp(int x, int y, int pointer, int button) {
+		iLogger.debug("touchUp");
 		mNewTouch = true;
 		mNewTouchEvent = true;
 		mTouching[pointer] = false;
@@ -513,8 +528,9 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 
 	@Override
 	public boolean touchDragged(int x, int y, int pointer) {
-		mNewTouchEvent = true;
+		iLogger.debug("touchDragged");
 		mTouching[pointer] = true;
+		mNewTouchEvent = ((mTouchX[pointer] != x) || (mTouchY[pointer] != y));
 		mTouchX[pointer] = x;
 		mTouchY[pointer] = y;
 		return true;
@@ -522,6 +538,7 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 
 	@Override
 	public boolean touchMoved(int x, int y) {
+		iLogger.debug("touchMoved");
 		mMouseOverX = x;
 		mMouseOverY = y;
 		return true;
@@ -577,6 +594,7 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 		int mX = -1;
 		int mY = -1;
 		int mIdx = -1;
+		int mVersion = -1;
 		float mDistanceSq = 0;
 		Texture mTexture = new Texture(CELLTEXTURE_SIZE, CELLTEXTURE_SIZE, Pixmap.Format.RGBA8888);
 
@@ -593,31 +611,31 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 			return Float.compare(o.mDistanceSq, mDistanceSq);
 		}
 
-		public void calcDistance(float mMinX, float mMaxX, float mMinY, float mMaxY) {
-			if ((mX == -1) || (mY == -1)) {
+		public void calcDistance(float aMinX, float aMaxX, float aMinY, float aMaxY) {
+			if ((mX == -1) || (mY == -1) || (mVersion != mBoard.getVersion())) {
 				mDistanceSq = Float.MAX_VALUE;
 				return;
 			}
 			float x = mX * CELLTEXTURE_SIZE;
 			float y = mY * CELLTEXTURE_SIZE;
 			float t;
-			mMinX -= CELLTEXTURE_SIZE;
-			mMinY -= CELLTEXTURE_SIZE;
+			aMinX -= CELLTEXTURE_SIZE;
+			aMinY -= CELLTEXTURE_SIZE;
 			mDistanceSq = 0;
-			if (x < mMinX) {
-				t = mMinX - x;
+			if (x < aMinX) {
+				t = aMinX - x;
 				mDistanceSq += t * t;
 			}
-			if (mMaxX < x) {
-				t = x - mMaxX;
+			if (aMaxX < x) {
+				t = x - aMaxX;
 				mDistanceSq += t * t;
 			}
-			if (y < mMinY) {
-				t = mMinY - y;
+			if (y < aMinY) {
+				t = aMinY - y;
 				mDistanceSq += t * t;
 			}
-			if (mMaxY < y) {
-				t = y - mMaxY;
+			if (aMaxY < y) {
+				t = y - aMaxY;
 				mDistanceSq += t * t;
 			}
 		}
@@ -628,6 +646,7 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 			mIdx = aIdx;
 			mBoard.writePixmap0(mCellTexturePixmap, mX * CELLTEXTURE_SIZE, mY * CELLTEXTURE_SIZE);
 			mTexture.draw(mCellTexturePixmap, 0, 0);
+			mVersion = mBoard.getVersion();
 		}
 	}
 
@@ -636,6 +655,7 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 	private Pixmap mCellTexturePixmap;
 
 	private void updateCellTextureV() {
+		iLogger.debug("updateCellTextureV");
 		// TODO object reuse
 		int ctvw = ((mScreenWidth + (CELLTEXTURE_SIZE - 1)) / CELLTEXTURE_SIZE) + 1;
 		int ctvh = ((mScreenHeight + (CELLTEXTURE_SIZE - 1)) / CELLTEXTURE_SIZE) + 1;
@@ -686,7 +706,9 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 							throw new AssertionError();
 						}
 						// iLogger.debug(String.format("remove %08x", ct.mIdx));
-						mCellTextureM.remove(ct.mIdx);
+						if (ct.mVersion == mBoard.getVersion()) {
+							mCellTextureM.remove(ct.mIdx);
+						}
 						ct.update(x, y, idx);
 						mCellTextureM.put(idx, new WeakReference<CellTexture>(ct));
 					}
@@ -719,7 +741,7 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 				try {
 					ct = mCellTextureM.get(idx).get();
 				} catch (NullPointerException npe) {
-					// iLogger.debug(String.format("npe %08x", idx));
+					iLogger.debug(String.format("npe %08x %d", idx, mBoard.getVersion()));
 					throw npe;
 				}
 				ct.mTexture.bind();

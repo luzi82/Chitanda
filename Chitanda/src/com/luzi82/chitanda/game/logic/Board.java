@@ -1,10 +1,8 @@
 package com.luzi82.chitanda.game.logic;
 
 import java.nio.ByteBuffer;
-import java.nio.IntBuffer;
 
 import com.badlogic.gdx.graphics.Pixmap;
-import com.badlogic.gdx.utils.Logger;
 
 public class Board {
 
@@ -22,6 +20,8 @@ public class Board {
 	public static final int CELL2_COUNT = CELL0_COUNT / 256;
 	public static final int DATA2_SIZE = CELL2_COUNT;
 	private final byte[] mData2 = new byte[DATA2_SIZE];
+
+	private int mVersion = 0;
 
 	public boolean get(int aX, int aY) {
 		int i0 = xyToIndex(aX, aY);
@@ -63,6 +63,7 @@ public class Board {
 		d1 &= ~(0xf << o1);
 		d1 |= v1 << o1;
 		mData1[i1] = d1;
+		++mVersion;
 	}
 
 	public void setAll(boolean aValue) {
@@ -76,6 +77,7 @@ public class Board {
 		for (int i = 0; i < DATA2_SIZE; ++i) {
 			mData2[i] = v;
 		}
+		++mVersion;
 	}
 
 	private static int xyToIndex(int aX, int aY) {
@@ -133,6 +135,10 @@ public class Board {
 
 		bb.put(BB);
 		bb.rewind();
+	}
+
+	public int getVersion() {
+		return mVersion;
 	}
 
 	@SuppressWarnings("all")
