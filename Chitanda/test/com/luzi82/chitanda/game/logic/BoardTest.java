@@ -16,42 +16,42 @@ public class BoardTest {
 				xx = x;
 				yy = y;
 				b.set(xx, yy, false);
-				assertFalse(b.get(xx, yy));
+				assertFalse(b.get0(xx, yy));
 
 				xx = Board.WIDTH - x - 1;
 				yy = Board.HEIGHT - y - 1;
 				b.set(xx, yy, false);
-				assertFalse(b.get(xx, yy));
+				assertFalse(b.get0(xx, yy));
 			}
 		}
 		for (x = 0; x < 100; ++x) {
 			for (y = 0; y < 100; ++y) {
 				xx = x;
 				yy = y;
-				assertFalse(b.get(xx, yy));
+				assertFalse(b.get0(xx, yy));
 				b.set(xx, yy, true);
-				assertTrue(b.get(xx, yy));
+				assertTrue(b.get0(xx, yy));
 
 				xx = Board.WIDTH - x - 1;
 				yy = Board.HEIGHT - y - 1;
-				assertFalse(b.get(xx, yy));
+				assertFalse(b.get0(xx, yy));
 				b.set(xx, yy, true);
-				assertTrue(b.get(xx, yy));
+				assertTrue(b.get0(xx, yy));
 			}
 		}
 		for (x = 0; x < 100; ++x) {
 			for (y = 0; y < 100; ++y) {
 				xx = x;
 				yy = y;
-				assertTrue(b.get(xx, yy));
+				assertTrue(b.get0(xx, yy));
 				b.set(xx, yy, false);
-				assertFalse(b.get(xx, yy));
+				assertFalse(b.get0(xx, yy));
 
 				xx = Board.WIDTH - x - 1;
 				yy = Board.HEIGHT - y - 1;
-				assertTrue(b.get(xx, yy));
+				assertTrue(b.get0(xx, yy));
 				b.set(xx, yy, false);
-				assertFalse(b.get(xx, yy));
+				assertFalse(b.get0(xx, yy));
 			}
 		}
 	}
@@ -65,11 +65,11 @@ public class BoardTest {
 			for (y = 0; y < 100; ++y) {
 				xx = x;
 				yy = y;
-				assertFalse(b.get(xx, yy));
+				assertFalse(b.get0(xx, yy));
 
 				xx = Board.WIDTH - x - 1;
 				yy = Board.HEIGHT - y - 1;
-				assertFalse(b.get(xx, yy));
+				assertFalse(b.get0(xx, yy));
 			}
 		}
 		b.setAll(true);
@@ -77,11 +77,11 @@ public class BoardTest {
 			for (y = 0; y < 100; ++y) {
 				xx = x;
 				yy = y;
-				assertTrue(b.get(xx, yy));
+				assertTrue(b.get0(xx, yy));
 
 				xx = Board.WIDTH - x - 1;
 				yy = Board.HEIGHT - y - 1;
-				assertTrue(b.get(xx, yy));
+				assertTrue(b.get0(xx, yy));
 			}
 		}
 		b.setAll(false);
@@ -89,11 +89,11 @@ public class BoardTest {
 			for (y = 0; y < 100; ++y) {
 				xx = x;
 				yy = y;
-				assertFalse(b.get(xx, yy));
+				assertFalse(b.get0(xx, yy));
 
 				xx = Board.WIDTH - x - 1;
 				yy = Board.HEIGHT - y - 1;
-				assertFalse(b.get(xx, yy));
+				assertFalse(b.get0(xx, yy));
 			}
 		}
 	}

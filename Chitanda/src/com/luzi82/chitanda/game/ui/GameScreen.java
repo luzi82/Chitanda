@@ -437,7 +437,7 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 				aGl.glPushMatrix();
 				aGl.glTranslatef(x, 0, 0);
 				for (int y = minY; y < maxY; ++y) {
-					if (mBoard.get(x, y)) {
+					if (mBoard.get0(x, y)) {
 						aGl.glPushMatrix();
 						aGl.glTranslatef(0, y, 0);
 						if ((x + y) % 2 == 0) {
@@ -507,7 +507,7 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 			good = good && (by >= 0);
 			good = good && (by < Board.HEIGHT);
 			if (good) {
-				if (mBoard.get(bx, by)) {
+				if (mBoard.get0(bx, by)) {
 					mBoard.set(bx, by, false);
 					mCellTextureM.clear();
 				}

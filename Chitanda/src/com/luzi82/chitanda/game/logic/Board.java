@@ -23,9 +23,9 @@ public class Board {
 
 	private int mVersion = 0;
 
-	public boolean get(int aX, int aY) {
-		int i0 = xyToIndex(aX, aY);
-		int o0 = xyToOffset(aX, aY);
+	public boolean get0(int aX, int aY) {
+		int i0 = xyToIndex0(aX, aY);
+		int o0 = xyToOffset0(aX, aY);
 		return (mData0[i0] & (1 << o0)) != 0;
 	}
 
@@ -41,8 +41,8 @@ public class Board {
 	}
 
 	public void set(int aX, int aY, boolean aV) {
-		int i0 = xyToIndex(aX, aY);
-		int o0 = xyToOffset(aX, aY);
+		int i0 = xyToIndex0(aX, aY);
+		int o0 = xyToOffset0(aX, aY);
 		boolean v = (mData0[i0] & (1 << o0)) != 0;
 		if (v == aV)
 			return;
@@ -80,11 +80,11 @@ public class Board {
 		++mVersion;
 	}
 
-	private static int xyToIndex(int aX, int aY) {
+	private static int xyToIndex0(int aX, int aY) {
 		return (aX + aY * WIDTH) / Byte.SIZE;
 	}
 
-	private static int xyToOffset(int aX, int aY) {
+	private static int xyToOffset0(int aX, int aY) {
 		return (aX + aY * WIDTH) % Byte.SIZE;
 	}
 
@@ -109,7 +109,7 @@ public class Board {
 		bb.rewind();
 		int yStep = WIDTH / Byte.SIZE;
 
-		int offset0 = xyToIndex(aX0, aY0);
+		int offset0 = xyToIndex0(aX0, aY0);
 		int out = 0;
 
 		byte b;
