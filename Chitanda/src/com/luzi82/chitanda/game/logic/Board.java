@@ -11,14 +11,17 @@ public class Board {
 
 	public static final int CELL0_COUNT = WIDTH * HEIGHT;
 	public static final int DATA0_SIZE = CELL0_COUNT / Byte.SIZE;
+	public static final int YSTEP0 = WIDTH / Byte.SIZE;
 	private final byte[] mData0 = new byte[DATA0_SIZE];
 
 	public static final int CELL1_COUNT = CELL0_COUNT / 16;
 	public static final int DATA1_SIZE = CELL1_COUNT * 4 / Byte.SIZE;
+	public static final int YSTEP1 = (WIDTH >> 2) * 4 / Byte.SIZE;
 	private final byte[] mData1 = new byte[DATA1_SIZE];
 
 	public static final int CELL2_COUNT = CELL0_COUNT / 256;
 	public static final int DATA2_SIZE = CELL2_COUNT;
+	public static final int YSTEP2 = WIDTH >> 4;
 	private final byte[] mData2 = new byte[DATA2_SIZE];
 
 	private int mVersion = 0;
@@ -51,18 +54,46 @@ public class Board {
 		int i2 = xyToIndex2(aX >> 4, aY >> 4);
 		byte d1 = mData1[i1];
 		int v1 = (d1 >> o1) & 0xf;
+		int v2 = mData2[i2];
 		if (aV) {
 			mData0[i0] |= 1 << o0;
-			++v1;
+
+			if (v1 == 7) {
+				v1 = layerTotal1(xyToIndex0(aX, aY & (~3)), o0 & (~3));
+				v1 -= (v1 >> 3);
+			} else {
+				++v1;
+			}
+
+			if (v2 == 0x7f) {
+				v2 = layerTotal2(xyToIndex0(aX & (~0xf), aY & (~0xf)));
+				v2 -= (v2 >> 7);
+			} else {
+				++v2;
+			}
+
 			++mData2[i2];
 		} else {
 			mData0[i0] &= ~(1 << o0);
-			--v1;
-			--mData2[i2];
+
+			if (v1 == 7) {
+				v1 = layerTotal1(xyToIndex0(aX, aY & (~3)), o0 & (~3));
+				v1 -= (v1 >> 3);
+			} else {
+				--v1;
+			}
+
+			if (v2 == 0x7f) {
+				v2 = layerTotal2(xyToIndex0(aX & (~0xf), aY & (~0xf)));
+				v2 -= (v2 >> 7);
+			} else {
+				--v2;
+			}
 		}
 		d1 &= ~(0xf << o1);
 		d1 |= v1 << o1;
 		mData1[i1] = d1;
+		mData2[i2] = (byte) v2;
 		++mVersion;
 	}
 
@@ -80,36 +111,35 @@ public class Board {
 		++mVersion;
 	}
 
-	private static int xyToIndex0(int aX, int aY) {
+	public static int xyToIndex0(int aX, int aY) {
 		return (aX + aY * WIDTH) / Byte.SIZE;
 	}
 
-	private static int xyToOffset0(int aX, int aY) {
+	public static int xyToOffset0(int aX, int aY) {
 		return (aX + aY * WIDTH) % Byte.SIZE;
 	}
 
-	private static int xyToIndex1(int aX1, int aY1) {
+	public static int xyToIndex1(int aX1, int aY1) {
 		return (aX1 + aY1 * (WIDTH / 4)) / 2;
 	}
 
-	private static int xyToOffset1(int aX1, int aY1) {
-		return ((aX1 + aY1 * (WIDTH / 4)) % 1) * 4;
+	public static int xyToOffset1(int aX1, int aY1) {
+		return ((aX1 + aY1 * (WIDTH / 4)) & 1) * 4;
 	}
 
-	private static int xyToIndex2(int aX2, int aY2) {
-		return (aX2 + aY2 * (WIDTH / 16)) / Byte.SIZE;
+	public static int xyToIndex2(int aX2, int aY2) {
+		return aX2 + aY2 * (WIDTH / 16);
 	}
 
 	static byte[] BB = new byte[64 * 64 * 4];
 
-	public void writePixmap0(Pixmap aPixmap, int aX0, int aY0) {
-		byte c = (byte) (((((aX0 + aY0) / 64) & 1) == 0) ? 0x00 : 0x0f);
+	public void writePixmap0(Pixmap aPixmap, int aCX0, int aCY0) {
+		byte c = (byte) ((((aCX0 + aCY0) & 1) == 0) ? 0x00 : 0x0f);
 
 		ByteBuffer bb = aPixmap.getPixels();
 		bb.rewind();
-		int yStep = WIDTH / Byte.SIZE;
 
-		int offset0 = xyToIndex0(aX0, aY0);
+		int offset0 = xyToIndex0(aCX0 << 6, aCY0 << 6);
 		int out = 0;
 
 		byte b;
@@ -130,11 +160,103 @@ public class Board {
 					b >>= 1;
 				}
 			}
-			offset0 += yStep;
+			offset0 += YSTEP0;
 		}
 
 		bb.put(BB);
 		bb.rewind();
+	}
+
+	public void writePixmap1(Pixmap aPixmap, int aCX1, int aCY1) {
+		byte c = (byte) ((((aCX1 + aCY1) & 1) == 0) ? 0x00 : 0x0f);
+
+		ByteBuffer bb = aPixmap.getPixels();
+		bb.rewind();
+
+		int i1 = xyToIndex1(aCX1 << 6, aCY1 << 6);
+		int out = 0;
+
+		byte b;
+		for (int i = 0; i < 64; ++i) {
+			int j0 = i1;
+			int j1 = i1 + 32;
+			for (int j = j0; j < j1; ++j) {
+				b = mData1[j];
+				for (int k = 0; k < 2; ++k) {
+					int v = b & 0xf;
+					BB[out++] = c;
+					BB[out++] = c;
+					BB[out++] = c;
+					BB[out++] = (byte) (v | (v << 4));
+					b >>= 4;
+				}
+			}
+			i1 += YSTEP1;
+		}
+
+		bb.put(BB);
+		bb.rewind();
+	}
+
+	public void writePixmap2(Pixmap aPixmap, int aCX2, int aCY2) {
+		byte c = (byte) ((((aCX2 + aCY2) & 1) == 0) ? 0x00 : 0x0f);
+
+		ByteBuffer bb = aPixmap.getPixels();
+		bb.rewind();
+
+		int i2 = xyToIndex2(aCX2 << 6, aCY2 << 6);
+		int out = 0;
+
+		for (int i = 0; i < 64; ++i) {
+			int ii0 = i2;
+			int ii1 = i2 + 64;
+			for (int ii = ii0; ii < ii1; ++ii) {
+				BB[out++] = c;
+				BB[out++] = c;
+				BB[out++] = c;
+				BB[out++] = mData2[ii];
+			}
+			i2 += YSTEP2;
+		}
+
+		bb.put(BB);
+		bb.rewind();
+	}
+
+	public int layerTotal1(int aI0, int aO0) {
+		int ret = 0;
+		byte d;
+		for (int y = 0; y < 4; ++y) {
+			d = mData0[aI0];
+			d >>= aO0;
+			for (int x = 0; x < 4; ++x) {
+				if ((d & 1) == 1)
+					++ret;
+				d >>= 1;
+			}
+			aI0 += YSTEP0;
+		}
+		return ret;
+	}
+
+	public int layerTotal2(int aI0) {
+		int ret = 0;
+		int ii0;
+		byte d;
+		for (int y = 0; y < 16; ++y) {
+			ii0 = aI0;
+			for (int xi = 0; xi < 2; ++xi) {
+				d = mData0[ii0];
+				for (int xo = 0; xo < Byte.SIZE; ++xo) {
+					if ((d & 1) == 1)
+						++ret;
+					d >>= 1;
+				}
+				++ii0;
+			}
+			aI0 += YSTEP0;
+		}
+		return ret;
 	}
 
 	public int getVersion() {

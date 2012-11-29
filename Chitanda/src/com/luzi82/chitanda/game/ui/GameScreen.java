@@ -1,6 +1,5 @@
 package com.luzi82.chitanda.game.ui;
 
-import java.lang.ref.WeakReference;
 import java.util.Arrays;
 import java.util.TreeMap;
 
@@ -196,10 +195,10 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 
 		mBlockGroupMesh = new Mesh(true, 4, 4, va);
 		mBlockGroupMesh.setVertices(new float[] { //
-				0, CELLTEXTURE_SIZE, 0f, 0f, 1f,//
-						CELLTEXTURE_SIZE, CELLTEXTURE_SIZE, 0f, 1f, 1f,//
+				0f, 1f, 0f, 0f, 1f,//
+						1f, 1f, 0f, 1f, 1f,//
 						0f, 0f, 0f, 0f, 0f,//
-						CELLTEXTURE_SIZE, 0f, 0f, 1f, 0f,//
+						1f, 0f, 0f, 1f, 0f,//
 				});
 		mBlockGroupMesh.setIndices(new short[] { 0, 1, 2, 3 });
 
@@ -398,28 +397,24 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 	private void drawBlock(GL10 aGl) {
 		int minSide = Math.min(mScreenWidth, mScreenHeight);
 		float blockPerPixel = iCameraZoom / minSide;
-		if (blockPerPixel > 4) {
-		} else if (blockPerPixel > 1) {
-		} else if (blockPerPixel > mBlockPerPixelBorder) {
-			// iLogger.debug("asdf");
-			// aGl.glDisable(GL10.GL_BLEND);
-			// aGl.glBlendFunc(GL10.GL_ONE, GL10.GL_ZERO);
-			// aGl.glDisable(GL10.GL_TEXTURE_2D);
-			// aGl.glColor4f(0f, 0f, 0f, 1f);
+		if (blockPerPixel > mBlockPerPixelBorder) {
+			int layer = (blockPerPixel > 4) ? 2 //
+					: (blockPerPixel > 1) ? 1 //
+							: 0;
 			aGl.glEnable(GL10.GL_BLEND);
 			aGl.glBlendFunc(GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA);
 			aGl.glEnable(GL10.GL_TEXTURE_2D);
 			aGl.glColor4f(1f, 1f, 1f, 1f);
-			int minX = (int) Math.floor(screenToBoardX(0));
-			int maxX = (int) Math.ceil(screenToBoardX(mScreenWidth));
-			int minY = (int) Math.floor(screenToBoardY(mScreenHeight));
-			int maxY = (int) Math.ceil(screenToBoardY(0));
-			minX = minMax(0, minX, Board.WIDTH);
-			maxX = minMax(0, maxX, Board.WIDTH);
-			minY = minMax(0, minY, Board.HEIGHT);
-			maxY = minMax(0, maxY, Board.HEIGHT);
-			updateCellContent(minX, maxX, minY, maxY);
-			drawCellTextureV(aGl, minX, maxX, minY, maxY);
+			int minBX = (int) Math.floor(screenToBoardX(0));
+			int maxBX = (int) Math.ceil(screenToBoardX(mScreenWidth));
+			int minBY = (int) Math.floor(screenToBoardY(mScreenHeight));
+			int maxBY = (int) Math.ceil(screenToBoardY(0));
+			minBX = minMax(0, minBX, Board.WIDTH);
+			maxBX = minMax(0, maxBX, Board.WIDTH);
+			minBY = minMax(0, minBY, Board.HEIGHT);
+			maxBY = minMax(0, maxBY, Board.HEIGHT);
+			updateCellContent(minBX, maxBX, minBY, maxBY, layer);
+			drawCellTextureV(aGl, minBX, maxBX, minBY, maxBY, layer);
 			// aGl.glColor4f(1f, 1f, 1f, 1f);
 		} else {
 			aGl.glDisable(GL10.GL_BLEND);
@@ -489,7 +484,7 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 
 	@Override
 	public boolean touchDown(int x, int y, int pointer, int button) {
-		iLogger.debug("touchDown");
+		// iLogger.debug("touchDown");
 		mNewTouch = true;
 		mNewTouchEvent = true;
 		mTouching[pointer] = true;
@@ -509,7 +504,16 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 			if (good) {
 				if (mBoard.get0(bx, by)) {
 					mBoard.set(bx, by, false);
-					mCellTexture0M.clear();
+					int tx = bx / CELLTEXTURE_SIZE;
+					int ty = by / CELLTEXTURE_SIZE;
+					for (int layer = 0; layer < LAYER_COUNT; ++layer) {
+						CellTexture ct = mCellTextureM[layer].remove((tx << 16) | ty);
+						if (ct != null) {
+							ct.mUpdate = false;
+						}
+						tx >>= 2;
+						ty >>= 2;
+					}
 				}
 			}
 		}
@@ -519,7 +523,7 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 
 	@Override
 	public boolean touchUp(int x, int y, int pointer, int button) {
-		iLogger.debug("touchUp");
+		// iLogger.debug("touchUp");
 		mNewTouch = true;
 		mNewTouchEvent = true;
 		mTouching[pointer] = false;
@@ -528,7 +532,7 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 
 	@Override
 	public boolean touchDragged(int x, int y, int pointer) {
-		iLogger.debug("touchDragged");
+		// iLogger.debug("touchDragged");
 		mTouching[pointer] = true;
 		mNewTouchEvent = ((mTouchX[pointer] != x) || (mTouchY[pointer] != y));
 		mTouchX[pointer] = x;
@@ -538,7 +542,7 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 
 	@Override
 	public boolean touchMoved(int x, int y) {
-		iLogger.debug("touchMoved");
+		// iLogger.debug("touchMoved");
 		mMouseOverX = x;
 		mMouseOverY = y;
 		return true;
@@ -591,10 +595,12 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 	static final private int CELLTEXTURE_SIZE = 64;
 
 	private class CellTexture implements Disposable, Comparable<CellTexture> {
-		int mX = -1;
-		int mY = -1;
+		int mCX = -1;
+		int mCY = -1;
 		int mIdx = -1;
-		int mVersion = -1;
+		int mLayer = -1;
+		// int mVersion = -1;
+		boolean mUpdate = false;
 		float mDistanceSq = 0;
 		Texture mTexture = new Texture(CELLTEXTURE_SIZE, CELLTEXTURE_SIZE, Pixmap.Format.RGBA8888);
 
@@ -611,83 +617,101 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 			return Float.compare(o.mDistanceSq, mDistanceSq);
 		}
 
-		public void calcDistance(float aMinX, float aMaxX, float aMinY, float aMaxY) {
-			if ((mX == -1) || (mY == -1) || (mVersion != mBoard.getVersion())) {
+		public void calcDistance(float aMinBX, float aMaxBX, float aMinBY, float aMaxBY) {
+			if ((!mUpdate) || (mCX == -1) || (mCY == -1) || (mLayer == -1)) {
 				mDistanceSq = Float.MAX_VALUE;
 				return;
 			}
-			float x = mX * CELLTEXTURE_SIZE;
-			float y = mY * CELLTEXTURE_SIZE;
+			float bx = mCX * CELLTEXTURE_SIZE << (mLayer * 2);
+			float by = mCY * CELLTEXTURE_SIZE << (mLayer * 2);
 			float t;
-			aMinX -= CELLTEXTURE_SIZE;
-			aMinY -= CELLTEXTURE_SIZE;
+			aMinBX -= CELLTEXTURE_SIZE << (mLayer * 2);
+			aMinBY -= CELLTEXTURE_SIZE << (mLayer * 2);
 			mDistanceSq = 0;
-			if (x < aMinX) {
-				t = aMinX - x;
+			if (bx < aMinBX) {
+				t = aMinBX - bx;
 				mDistanceSq += t * t;
 			}
-			if (aMaxX < x) {
-				t = x - aMaxX;
+			if (aMaxBX < bx) {
+				t = bx - aMaxBX;
 				mDistanceSq += t * t;
 			}
-			if (y < aMinY) {
-				t = aMinY - y;
+			if (by < aMinBY) {
+				t = aMinBY - by;
 				mDistanceSq += t * t;
 			}
-			if (aMaxY < y) {
-				t = y - aMaxY;
+			if (aMaxBY < by) {
+				t = by - aMaxBY;
 				mDistanceSq += t * t;
 			}
 		}
 
-		public void update(int aX, int aY, int aIdx) {
-			mX = aX;
-			mY = aY;
+		public void update(int aCX, int aCY, int aIdx, int aLayer) {
+			mCX = aCX;
+			mCY = aCY;
 			mIdx = aIdx;
-			mBoard.writePixmap0(mCellTexturePixmap, mX * CELLTEXTURE_SIZE, mY * CELLTEXTURE_SIZE);
+			mLayer = aLayer;
+			switch (aLayer) {
+			case 0:
+				mBoard.writePixmap0(mCellTexturePixmap, mCX, mCY);
+				break;
+			case 1:
+				mBoard.writePixmap1(mCellTexturePixmap, mCX, mCY);
+				break;
+			case 2:
+				mBoard.writePixmap2(mCellTexturePixmap, mCX, mCY);
+				break;
+			default:
+				throw new IllegalStateException();
+			}
 			mTexture.draw(mCellTexturePixmap, 0, 0);
-			mVersion = mBoard.getVersion();
+			mUpdate = true;
 		}
 	}
 
-	private CellTexture[] mCellTexture0V;
-	private TreeMap<Integer, CellTexture> mCellTexture0M;
+	private static final int LAYER_COUNT = 3;
+	private CellTexture[][] mCellTextureV = new CellTexture[LAYER_COUNT][];
+	@SuppressWarnings("unchecked")
+	private TreeMap<Integer, CellTexture>[] mCellTextureM = new TreeMap[3];
 	private Pixmap mCellTexturePixmap;
 
 	private void updateCellTextureV() {
 		iLogger.debug("updateCellTextureV");
 		// TODO object reuse
-		mCellTexture0M = new TreeMap<Integer, CellTexture>();
 		int ctvw = ((mScreenWidth + (CELLTEXTURE_SIZE - 1)) / CELLTEXTURE_SIZE) + 1;
 		int ctvh = ((mScreenHeight + (CELLTEXTURE_SIZE - 1)) / CELLTEXTURE_SIZE) + 1;
 		int len = ctvw * ctvh;
-		if (mCellTexture0V != null) {
-			if (mCellTexture0V.length == len)
-				return;
-			for (int i = 0; i < mCellTexture0V.length; ++i) {
-				CellTexture ct = mCellTexture0V[i];
-				if (ct != null)
-					ct.dispose();
-				mCellTexture0V[i] = null;
+		for (int layer = 0; layer < LAYER_COUNT; ++layer) {
+			mCellTextureM[layer] = new TreeMap<Integer, CellTexture>();
+			if (mCellTextureV[layer] != null) {
+				if (mCellTextureV[layer].length == len)
+					return;
+				for (int i = 0; i < mCellTextureV[layer].length; ++i) {
+					CellTexture ct = mCellTextureV[layer][i];
+					if (ct != null)
+						ct.dispose();
+					mCellTextureV[layer][i] = null;
+				}
+				mCellTextureV[layer] = null;
 			}
-			mCellTexture0V = null;
-		}
-		mCellTexture0V = new CellTexture[len];
-		for (int i = 0; i < mCellTexture0V.length; ++i) {
-			mCellTexture0V[i] = new CellTexture();
+			mCellTextureV[layer] = new CellTexture[len];
+			for (int i = 0; i < len; ++i) {
+				mCellTextureV[layer][i] = new CellTexture();
+			}
 		}
 	}
 
-	private void updateCellContent(float aMinX, float aMaxX, float aMinY, float aMaxY) {
-		int minCX = (int) Math.floor(aMinX / CELLTEXTURE_SIZE);
-		int maxCX = (int) Math.ceil(aMaxX / CELLTEXTURE_SIZE);
-		int minCY = (int) Math.floor(aMinY / CELLTEXTURE_SIZE);
-		int maxCY = (int) Math.ceil(aMaxY / CELLTEXTURE_SIZE);
+	private void updateCellContent(float aMinBX, float aMaxBX, float aMinBY, float aMaxBY, int aLayer) {
+		int layerShift = 2 * aLayer;
+		int minCX = ((int) Math.floor(aMinBX / (CELLTEXTURE_SIZE << layerShift)));
+		int maxCX = ((int) Math.ceil(aMaxBX / (CELLTEXTURE_SIZE << layerShift)));
+		int minCY = ((int) Math.floor(aMinBY / (CELLTEXTURE_SIZE << layerShift)));
+		int maxCY = ((int) Math.ceil(aMaxBY / (CELLTEXTURE_SIZE << layerShift)));
 		boolean good = true;
-		fullTest: for (int x = minCX; x < maxCX; ++x) {
-			for (int y = minCY; y < maxCY; ++y) {
-				int idx = (x << 16) + y;
-				if (!mCellTexture0M.containsKey(idx)) {
+		fullTest: for (int cx = minCX; cx < maxCX; ++cx) {
+			for (int cy = minCY; cy < maxCY; ++cy) {
+				int idx = (cx << 16) | cy;
+				if (!mCellTextureM[aLayer].containsKey(idx)) {
 					good = false;
 					break fullTest;
 				}
@@ -696,61 +720,77 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 		if (!good) {
 			// iLogger.debug("!good");
 			int offset = 0;
-			sortCellTextureV(aMinX, aMaxX, aMinY, aMaxY);
-			for (int x = minCX; x < maxCX; ++x) {
-				for (int y = minCY; y < maxCY; ++y) {
-					int idx = (x << 16) + y;
-					if (!mCellTexture0M.containsKey(idx)) {
-						CellTexture ct = mCellTexture0V[offset++];
+			sortCellTextureV(aMinBX, aMaxBX, aMinBY, aMaxBY, aLayer);
+			for (int cx = minCX; cx < maxCX; ++cx) {
+				for (int cy = minCY; cy < maxCY; ++cy) {
+					int idx = (cx << 16) | cy;
+					if (!mCellTextureM[aLayer].containsKey(idx)) {
+						CellTexture ct = mCellTextureV[aLayer][offset++];
 						if (ct.mDistanceSq <= 0) {
 							throw new AssertionError();
 						}
 						// iLogger.debug(String.format("remove %08x", ct.mIdx));
-						if (ct.mVersion == mBoard.getVersion()) {
-							mCellTexture0M.remove(ct.mIdx);
+						if (ct.mUpdate) {
+							mCellTextureM[aLayer].remove(ct.mIdx);
 						}
-						ct.update(x, y, idx);
-						mCellTexture0M.put(idx, ct);
+						ct.update(cx, cy, idx, aLayer);
+						mCellTextureM[aLayer].put(idx, ct);
 					}
 				}
 			}
 		}
-	}
 
-	private void sortCellTextureV(float aMinX, float aMaxX, float aMinY, float aMaxY) {
-		for (int i = 0; i < mCellTexture0V.length; ++i) {
-			mCellTexture0V[i].calcDistance(aMinX, aMaxX, aMinY, aMaxY);
+		for (int i = 0; i < mCellTextureV[aLayer].length; ++i) {
+			mCellTextureV[aLayer][i].calcDistance(aMinBX, aMaxBX, aMinBY, aMaxBY);
 		}
-		Arrays.sort(mCellTexture0V);
+		int c = 0;
+		for (CellTexture ct : mCellTextureV[aLayer]) {
+			if (ct.mDistanceSq <= 0) {
+				++c;
+			}
+		}
+		// iLogger.debug("c " + c);
 	}
 
-	private void drawCellTextureV(GL10 aGl, float aMinX, float aMaxX, float aMinY, float aMaxY) {
-		int minCX = (int) Math.floor(aMinX / CELLTEXTURE_SIZE);
-		int maxCX = (int) Math.ceil(aMaxX / CELLTEXTURE_SIZE);
-		int minCY = (int) Math.floor(aMinY / CELLTEXTURE_SIZE);
-		int maxCY = (int) Math.ceil(aMaxY / CELLTEXTURE_SIZE);
+	private void sortCellTextureV(float aMinBX, float aMaxBX, float aMinBY, float aMaxBY, int aLayer) {
+		for (int i = 0; i < mCellTextureV[aLayer].length; ++i) {
+			mCellTextureV[aLayer][i].calcDistance(aMinBX, aMaxBX, aMinBY, aMaxBY);
+		}
+		Arrays.sort(mCellTextureV[aLayer]);
+	}
+
+	private void drawCellTextureV(GL10 aGl, float aMinBX, float aMaxBX, float aMinBY, float aMaxBY, int aLayer) {
+		int layerShift = 2 * aLayer;
+		int minCX = ((int) Math.floor(aMinBX / (CELLTEXTURE_SIZE << layerShift)));
+		int maxCX = ((int) Math.ceil(aMaxBX / (CELLTEXTURE_SIZE << layerShift)));
+		int minCY = ((int) Math.floor(aMinBY / (CELLTEXTURE_SIZE << layerShift)));
+		int maxCY = ((int) Math.ceil(aMaxBY / (CELLTEXTURE_SIZE << layerShift)));
 		// iLogger.debug("minCX " + minCX);
-		for (int x = minCX; x < maxCX; ++x) {
+		aGl.glPushMatrix();
+		aGl.glScalef(CELLTEXTURE_SIZE << layerShift, CELLTEXTURE_SIZE << layerShift, 1);
+		int idx = -1;
+		for (int cx = minCX; cx < maxCX; ++cx) {
 			aGl.glPushMatrix();
-			aGl.glTranslatef(x * CELLTEXTURE_SIZE, 0, 0);
-			for (int y = minCY; y < maxCY; ++y) {
-				aGl.glPushMatrix();
-				aGl.glTranslatef(0, y * CELLTEXTURE_SIZE, 0);
-				int idx = (x << 16) + y;
-				CellTexture ct;
+			aGl.glTranslatef(cx, 0, 0);
+			for (int cy = minCY; cy < maxCY; ++cy) {
 				try {
-					ct = mCellTexture0M.get(idx);
+					aGl.glPushMatrix();
+					aGl.glTranslatef(0, cy, 0);
+					idx = (cx << 16) | cy;
+					CellTexture ct;
+					ct = mCellTextureM[aLayer].get(idx);
+					ct.mTexture.bind();
+					mBlockGroupMesh.render(GL10.GL_TRIANGLE_STRIP);
+					// mBlockMesh.render(GL10.GL_TRIANGLE_STRIP);
+					aGl.glPopMatrix();
 				} catch (NullPointerException npe) {
 					iLogger.debug(String.format("npe %08x %d", idx, mBoard.getVersion()));
 					throw npe;
 				}
-				ct.mTexture.bind();
-				mBlockGroupMesh.render(GL10.GL_TRIANGLE_STRIP);
-				// mBlockMesh.render(GL10.GL_TRIANGLE_STRIP);
-				aGl.glPopMatrix();
 			}
 			aGl.glPopMatrix();
 		}
+		aGl.glPopMatrix();
 	}
 
 }
