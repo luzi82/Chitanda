@@ -16,8 +16,13 @@ public class CameraCalc {
 	public float mZoomMax;
 	public float mLogZoomMin;
 	public float mLogZoomMax;
+	
+	// camera (lock protected)
+	public float iCameraRealZoom;
+	public float iCameraRealBX;
+	public float iCameraRealBY;
 
-	// camera
+	// camera (calc use)
 	public float iCameraZoom;
 	public float iCameraBX;
 	public float iCameraBY;
@@ -75,6 +80,14 @@ public class CameraCalc {
 
 	public float screenToBoardY(float aY) {
 		return iCameraBY + (iCameraZoom * mViewPortH * (1 - (aY / mScreenH) - 0.5f));
+	}
+
+	public float screenToBoardRealX(float aX) {
+		return iCameraRealBX + (iCameraRealZoom * mViewPortW * (aX / mScreenW - 0.5f));
+	}
+
+	public float screenToBoardRealY(float aY) {
+		return iCameraRealBY + (iCameraRealZoom * mViewPortH * (1 - (aY / mScreenH) - 0.5f));
 	}
 
 	public float screenBoardToCameraX(float aScreenX, float aBoardX) {

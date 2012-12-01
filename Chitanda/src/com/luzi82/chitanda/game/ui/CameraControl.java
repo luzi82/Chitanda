@@ -2,8 +2,12 @@ package com.luzi82.chitanda.game.ui;
 
 import com.luzi82.chitanda.Const;
 
-
 public class CameraControl {
+
+	public CameraCalc mCameraCalc;
+
+	// lock
+	public long mLockTime;
 
 	// touch
 	public static final int TOUCH_MAX = 16;
@@ -22,10 +26,10 @@ public class CameraControl {
 	private int mMouseOverSY;
 	private int mMouseScrolled;
 
-	public CameraCalc mCameraLogic;
+	public CameraControl(CameraCalc aCameraCalc) {
+		mCameraCalc = aCameraCalc;
 
-	public CameraControl(CameraCalc aCameraLogic) {
-		mCameraLogic = aCameraLogic;
+		mLockTime = -1;
 
 		mTouching = new boolean[TOUCH_MAX];
 		mTouchSX = new int[TOUCH_MAX];
@@ -35,6 +39,10 @@ public class CameraControl {
 	public void update(float aDelta) {
 		int i;
 
+		if (mLockTime < System.currentTimeMillis()) {
+			mLockTime = -1;
+		}
+
 		float reduce = (float) Math.pow(Const.SMOOTH_REDUCE, aDelta);
 		float intReduce = (reduce - 1) * Const.DIV_LN_SMOOTH_REDUCE;
 
@@ -42,6 +50,12 @@ public class CameraControl {
 		float touchSYAvg = 0;
 		float touchSDiff = 0;
 		int touchCount = 0;
+
+		if (mTouchCountChange) {
+			mCameraCalc.iCameraBX = mCameraCalc.iCameraRealBX;
+			mCameraCalc.iCameraBY = mCameraCalc.iCameraRealBY;
+			mCameraCalc.iCameraZoom = mCameraCalc.iCameraRealZoom;
+		}
 
 		for (i = 0; i < TOUCH_MAX; ++i) {
 			if (!mTouching[i])
@@ -69,50 +83,56 @@ public class CameraControl {
 			}
 			touchSDiff /= touchCount;
 			if (mTouchCountChange) {
-				mTouchStartBXAvg = mCameraLogic.screenToBoardX(touchSXAvg);
-				mTouchStartBYAvg = mCameraLogic.screenToBoardY(touchSYAvg);
+				mTouchStartBXAvg = mCameraCalc.screenToBoardX(touchSXAvg);
+				mTouchStartBYAvg = mCameraCalc.screenToBoardY(touchSYAvg);
 				if (touchCount > 1) {
 					mTouchStartSDiff = touchSDiff;
-					mTouchStartCameraZoom = mCameraLogic.iCameraZoom;
+					mTouchStartCameraZoom = mCameraCalc.iCameraZoom;
 				} else {
-					mCameraLogic.smoothZoom(aDelta, reduce, intReduce);
-					float newCameraBX = mCameraLogic.screenBoardToCameraX(touchSXAvg, mTouchStartBXAvg);
-					float newCameraBY = mCameraLogic.screenBoardToCameraY(touchSYAvg, mTouchStartBYAvg);
-					mCameraLogic.xyMove(newCameraBX, newCameraBY, aDelta);
+					mCameraCalc.smoothZoom(aDelta, reduce, intReduce);
+					float newCameraBX = mCameraCalc.screenBoardToCameraX(touchSXAvg, mTouchStartBXAvg);
+					float newCameraBY = mCameraCalc.screenBoardToCameraY(touchSYAvg, mTouchStartBYAvg);
+					mCameraCalc.xyMove(newCameraBX, newCameraBY, aDelta);
 				}
 				mTouchCountChange = false;
 			} else if (mTouchChange) {
 				if (touchCount > 1) {
 					float newZoom = mTouchStartCameraZoom * mTouchStartSDiff / touchSDiff;
-					mCameraLogic.zoomMove(newZoom, aDelta);
+					mCameraCalc.zoomMove(newZoom, aDelta);
 				} else {
-					mCameraLogic.smoothZoom(aDelta, reduce, intReduce);
+					mCameraCalc.smoothZoom(aDelta, reduce, intReduce);
 				}
-				float newCameraBX = mCameraLogic.screenBoardToCameraX(touchSXAvg, mTouchStartBXAvg);
-				float newCameraBY = mCameraLogic.screenBoardToCameraY(touchSYAvg, mTouchStartBYAvg);
-				mCameraLogic.xyMove(newCameraBX, newCameraBY, aDelta);
+				float newCameraBX = mCameraCalc.screenBoardToCameraX(touchSXAvg, mTouchStartBXAvg);
+				float newCameraBY = mCameraCalc.screenBoardToCameraY(touchSYAvg, mTouchStartBYAvg);
+				mCameraCalc.xyMove(newCameraBX, newCameraBY, aDelta);
 			} else if (touchCount == 1) {
-				mCameraLogic.smoothZoom(aDelta, reduce, intReduce);
-				float newCameraBX = mCameraLogic.screenBoardToCameraX(touchSXAvg, mTouchStartBXAvg);
-				float newCameraBY = mCameraLogic.screenBoardToCameraY(touchSYAvg, mTouchStartBYAvg);
-				mCameraLogic.xySet(newCameraBX, newCameraBY);
+				mCameraCalc.smoothZoom(aDelta, reduce, intReduce);
+				float newCameraBX = mCameraCalc.screenBoardToCameraX(touchSXAvg, mTouchStartBXAvg);
+				float newCameraBY = mCameraCalc.screenBoardToCameraY(touchSYAvg, mTouchStartBYAvg);
+				mCameraCalc.xySet(newCameraBX, newCameraBY);
 			}
 		} else if (mMouseScrolled != 0) {
-			float mouseBX = mCameraLogic.screenToBoardX(mMouseOverSX);
-			float mouseBY = mCameraLogic.screenToBoardY(mMouseOverSY);
+			float mouseBX = mCameraCalc.screenToBoardX(mMouseOverSX);
+			float mouseBY = mCameraCalc.screenToBoardY(mMouseOverSY);
 
-			mCameraLogic.mCameraZoomD -= mMouseScrolled * Const.PHI;
-			mCameraLogic.smoothZoom(aDelta, reduce, intReduce);
+			mCameraCalc.mCameraZoomD -= mMouseScrolled * Const.PHI;
+			mCameraCalc.smoothZoom(aDelta, reduce, intReduce);
 
-			float newCameraBX = mCameraLogic.screenBoardToCameraX(mMouseOverSX, mouseBX);
-			float newCameraBY = mCameraLogic.screenBoardToCameraY(mMouseOverSY, mouseBY);
-			mCameraLogic.xyMove(newCameraBX, newCameraBY, aDelta);
+			float newCameraBX = mCameraCalc.screenBoardToCameraX(mMouseOverSX, mouseBX);
+			float newCameraBY = mCameraCalc.screenBoardToCameraY(mMouseOverSY, mouseBY);
+			mCameraCalc.xyMove(newCameraBX, newCameraBY, aDelta);
 			mMouseScrolled = 0;
 		} else {
-			mCameraLogic.smoothZoom(aDelta, reduce, intReduce);
-			mCameraLogic.smoothXY(aDelta, reduce, intReduce);
+			mCameraCalc.smoothZoom(aDelta, reduce, intReduce);
+			mCameraCalc.smoothXY(aDelta, reduce, intReduce);
 		}
 		mTouchChange = false;
+
+		if (mLockTime < 0) {
+			mCameraCalc.iCameraRealBX = mCameraCalc.iCameraBX;
+			mCameraCalc.iCameraRealBY = mCameraCalc.iCameraBY;
+			mCameraCalc.iCameraRealZoom = mCameraCalc.iCameraZoom;
+		}
 	}
 
 	public void touchDown(int aSX, int aSY, int aPointer, int aButton, long aTime) {
