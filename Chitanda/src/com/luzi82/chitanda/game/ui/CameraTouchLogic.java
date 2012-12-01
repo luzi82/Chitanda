@@ -71,6 +71,11 @@ public class CameraTouchLogic {
 				if (touchCount > 1) {
 					mTouchStartDiff = touchDiff;
 					mTouchStartCameraZoom = mCameraLogic.iCameraZoom;
+				}else{
+					mCameraLogic.smoothZoom(aDelta, reduce, intReduce);
+					float newCameraBX = mCameraLogic.screenBoardToCameraX(touchSXAvg, mTouchStartBXAvg);
+					float newCameraBY = mCameraLogic.screenBoardToCameraY(touchSYAvg, mTouchStartBYAvg);
+					mCameraLogic.xyMove(newCameraBX, newCameraBY, aDelta);
 				}
 				mNewTouch = false;
 			} else if (mNewTouchEvent) {
