@@ -45,6 +45,11 @@ public class CameraLogic {
 		iCameraY = aNewY;
 	}
 
+	public void xySet(float aNewX, float aNewY) {
+		iCameraX = aNewX;
+		iCameraY = aNewY;
+	}
+
 	public float viewBY0Min() {
 		return iCameraY - iCameraZoom * mViewPortHeight / 2;
 	}

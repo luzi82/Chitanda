@@ -1,11 +1,13 @@
 package com.luzi82.chitanda.game.ui;
 
+import com.badlogic.gdx.utils.Logger;
+
 public class CameraTouchLogic {
 
 	// touch
 	public static final int TOUCH_MAX = 16;
-	private boolean mNewTouch;
-	private boolean mNewTouchEvent;
+	private boolean mTouchCountChange;
+	private boolean mTouchChange;
 	private boolean[] mTouching;
 	private int[] mTouchSX;
 	private int[] mTouchSY;
@@ -65,20 +67,20 @@ public class CameraTouchLogic {
 				}
 			}
 			touchDiff /= touchCount;
-			if (mNewTouch) {
+			if (mTouchCountChange) {
 				mTouchStartBXAvg = mCameraLogic.screenToBoardX(touchSXAvg);
 				mTouchStartBYAvg = mCameraLogic.screenToBoardY(touchSYAvg);
 				if (touchCount > 1) {
 					mTouchStartDiff = touchDiff;
 					mTouchStartCameraZoom = mCameraLogic.iCameraZoom;
-				}else{
+				} else {
 					mCameraLogic.smoothZoom(aDelta, reduce, intReduce);
 					float newCameraBX = mCameraLogic.screenBoardToCameraX(touchSXAvg, mTouchStartBXAvg);
 					float newCameraBY = mCameraLogic.screenBoardToCameraY(touchSYAvg, mTouchStartBYAvg);
 					mCameraLogic.xyMove(newCameraBX, newCameraBY, aDelta);
 				}
-				mNewTouch = false;
-			} else if (mNewTouchEvent) {
+				mTouchCountChange = false;
+			} else if (mTouchChange) {
 				if (touchCount > 1) {
 					float newZoom = mTouchStartCameraZoom * mTouchStartDiff / touchDiff;
 					mCameraLogic.zoomMove(newZoom, aDelta);
@@ -92,7 +94,7 @@ public class CameraTouchLogic {
 				mCameraLogic.smoothZoom(aDelta, reduce, intReduce);
 				float newCameraBX = mCameraLogic.screenBoardToCameraX(touchSXAvg, mTouchStartBXAvg);
 				float newCameraBY = mCameraLogic.screenBoardToCameraY(touchSYAvg, mTouchStartBYAvg);
-				mCameraLogic.xyMove(newCameraBX, newCameraBY, aDelta);
+				mCameraLogic.xySet(newCameraBX, newCameraBY);
 			}
 		} else if (mMouseScrolled != 0) {
 			float mouseBX = mCameraLogic.screenToBoardX(mMouseOverSX);
@@ -113,13 +115,13 @@ public class CameraTouchLogic {
 			mCameraLogic.smoothZoom(aDelta, reduce, intReduce);
 			mCameraLogic.smoothXY(aDelta, reduce, intReduce);
 		}
-		mNewTouchEvent = false;
+		mTouchChange = false;
 	}
 
 	public void touchDown(int aSX, int aSY, int aPointer, int aButton) {
 		// iLogger.debug("touchDown");
-		mNewTouch = true;
-		mNewTouchEvent = true;
+		mTouchCountChange = true;
+		mTouchChange = true;
 		mTouching[aPointer] = true;
 		mTouchSX[aPointer] = aSX;
 		mTouchSY[aPointer] = aSY;
@@ -127,15 +129,15 @@ public class CameraTouchLogic {
 
 	public void touchUp(int aSX, int aSY, int aPointer, int aButton) {
 		// iLogger.debug("touchUp");
-		mNewTouch = true;
-		mNewTouchEvent = true;
+		mTouchCountChange = true;
+		mTouchChange = true;
 		mTouching[aPointer] = false;
 	}
 
 	public void touchDragged(int aSX, int aSY, int aPointer) {
 		// iLogger.debug("touchDragged");
 		mTouching[aPointer] = true;
-		mNewTouchEvent = ((mTouchSX[aPointer] != aSX) || (mTouchSY[aPointer] != aSY));
+		mTouchChange = ((mTouchSX[aPointer] != aSX) || (mTouchSY[aPointer] != aSY));
 		mTouchSX[aPointer] = aSX;
 		mTouchSY[aPointer] = aSY;
 	}
