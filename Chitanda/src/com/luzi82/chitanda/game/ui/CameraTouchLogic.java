@@ -7,16 +7,16 @@ public class CameraTouchLogic {
 	private boolean mNewTouch;
 	private boolean mNewTouchEvent;
 	private boolean[] mTouching;
-	private int[] mTouchX;
-	private int[] mTouchY;
-	private float mTouchStartCameraX;
-	private float mTouchStartCameraY;
+	private int[] mTouchSX;
+	private int[] mTouchSY;
+	private float mTouchStartBXAvg;
+	private float mTouchStartBYAvg;
 	private float mTouchStartDiff;
 	private float mTouchStartCameraZoom;
 
 	// mouse
-	private int mMouseOverX;
-	private int mMouseOverY;
+	private int mMouseOverSX;
+	private int mMouseOverSY;
 	private int mMouseScrolled;
 
 	public CameraLogic mCameraLogic;
@@ -25,8 +25,8 @@ public class CameraTouchLogic {
 		mCameraLogic = aCameraLogic;
 
 		mTouching = new boolean[TOUCH_MAX];
-		mTouchX = new int[TOUCH_MAX];
-		mTouchY = new int[TOUCH_MAX];
+		mTouchSX = new int[TOUCH_MAX];
+		mTouchSY = new int[TOUCH_MAX];
 	}
 
 	public void update(float aDelta) {
@@ -35,30 +35,30 @@ public class CameraTouchLogic {
 		float reduce = (float) Math.pow(CameraLogic.SMOOTH_REDUCE, aDelta);
 		float intReduce = (reduce - 1) * CameraLogic.DIV_LN_SMOOTH_REDUCE;
 
-		float touchXAvg = 0;
-		float touchYAvg = 0;
+		float touchSXAvg = 0;
+		float touchSYAvg = 0;
 		float touchDiff = 0;
 		int touchCount = 0;
 
 		for (i = 0; i < TOUCH_MAX; ++i) {
 			if (!mTouching[i])
 				continue;
-			touchXAvg += mTouchX[i];
-			touchYAvg += mTouchY[i];
+			touchSXAvg += mTouchSX[i];
+			touchSYAvg += mTouchSY[i];
 			++touchCount;
 		}
 		if (touchCount > 0) {
-			touchXAvg /= touchCount;
-			touchYAvg /= touchCount;
+			touchSXAvg /= touchCount;
+			touchSYAvg /= touchCount;
 			if (touchCount > 1) {
 				for (i = 0; i < TOUCH_MAX; ++i) {
 					if (!mTouching[i])
 						continue;
 					float d = 0, dd = 0;
-					dd = mTouchX[i] - touchXAvg;
+					dd = mTouchSX[i] - touchSXAvg;
 					dd *= dd;
 					d += dd;
-					dd = mTouchY[i] - touchYAvg;
+					dd = mTouchSY[i] - touchSYAvg;
 					dd *= dd;
 					d += dd;
 					touchDiff += (float) Math.sqrt(d);
@@ -66,13 +66,12 @@ public class CameraTouchLogic {
 			}
 			touchDiff /= touchCount;
 			if (mNewTouch) {
-				mTouchStartCameraX = mCameraLogic.screenToBoardX(touchXAvg);
-				mTouchStartCameraY = mCameraLogic.screenToBoardY(touchYAvg);
+				mTouchStartBXAvg = mCameraLogic.screenToBoardX(touchSXAvg);
+				mTouchStartBYAvg = mCameraLogic.screenToBoardY(touchSYAvg);
 				if (touchCount > 1) {
 					mTouchStartDiff = touchDiff;
 					mTouchStartCameraZoom = mCameraLogic.iCameraZoom;
 				}
-				// mCameraZoomD = 0;
 				mNewTouch = false;
 			} else if (mNewTouchEvent) {
 				if (touchCount > 1) {
@@ -81,29 +80,29 @@ public class CameraTouchLogic {
 				} else {
 					mCameraLogic.smoothZoom(aDelta, reduce, intReduce);
 				}
-				float newX = mCameraLogic.screenBoardToCameraX(touchXAvg, mTouchStartCameraX);
-				float newY = mCameraLogic.screenBoardToCameraY(touchYAvg, mTouchStartCameraY);
-				mCameraLogic.xyMove(newX, newY, aDelta);
+				float newCameraBX = mCameraLogic.screenBoardToCameraX(touchSXAvg, mTouchStartBXAvg);
+				float newCameraBY = mCameraLogic.screenBoardToCameraY(touchSYAvg, mTouchStartBYAvg);
+				mCameraLogic.xyMove(newCameraBX, newCameraBY, aDelta);
 			} else if (touchCount == 1) {
 				mCameraLogic.smoothZoom(aDelta, reduce, intReduce);
-				float newX = mCameraLogic.screenBoardToCameraX(touchXAvg, mTouchStartCameraX);
-				float newY = mCameraLogic.screenBoardToCameraY(touchYAvg, mTouchStartCameraY);
-				mCameraLogic.xyMove(newX, newY, aDelta);
+				float newCameraBX = mCameraLogic.screenBoardToCameraX(touchSXAvg, mTouchStartBXAvg);
+				float newCameraBY = mCameraLogic.screenBoardToCameraY(touchSYAvg, mTouchStartBYAvg);
+				mCameraLogic.xyMove(newCameraBX, newCameraBY, aDelta);
 			}
 		} else if (mMouseScrolled != 0) {
-			float x = mCameraLogic.screenToBoardX(mMouseOverX);
-			float y = mCameraLogic.screenToBoardY(mMouseOverY);
+			float mouseBX = mCameraLogic.screenToBoardX(mMouseOverSX);
+			float mouseBY = mCameraLogic.screenToBoardY(mMouseOverSY);
 
 			mCameraLogic.mCameraZoomD -= mMouseScrolled * CameraLogic.PHI;
 			mCameraLogic.smoothZoom(aDelta, reduce, intReduce);
 
-			float newX = mCameraLogic.screenBoardToCameraX(mMouseOverX, x);
-			float newY = mCameraLogic.screenBoardToCameraY(mMouseOverY, y);
+			float newCameraBX = mCameraLogic.screenBoardToCameraX(mMouseOverSX, mouseBX);
+			float newCameraBY = mCameraLogic.screenBoardToCameraY(mMouseOverSY, mouseBY);
 			// mCameraXD = (newX - iCameraX) / aDelta;
 			// mCameraYD = (newY - iCameraY) / aDelta;
 			// iCameraX = newX;
 			// iCameraY = newY;
-			mCameraLogic.xyMove(newX, newY, aDelta);
+			mCameraLogic.xyMove(newCameraBX, newCameraBY, aDelta);
 			mMouseScrolled = 0;
 		} else {
 			mCameraLogic.smoothZoom(aDelta, reduce, intReduce);
@@ -112,38 +111,38 @@ public class CameraTouchLogic {
 		mNewTouchEvent = false;
 	}
 
-	public void touchDown(int x, int y, int pointer, int button) {
+	public void touchDown(int aSX, int aSY, int aPointer, int aButton) {
 		// iLogger.debug("touchDown");
 		mNewTouch = true;
 		mNewTouchEvent = true;
-		mTouching[pointer] = true;
-		mTouchX[pointer] = x;
-		mTouchY[pointer] = y;
+		mTouching[aPointer] = true;
+		mTouchSX[aPointer] = aSX;
+		mTouchSY[aPointer] = aSY;
 	}
 
-	public void touchUp(int x, int y, int pointer, int button) {
+	public void touchUp(int aSX, int aSY, int aPointer, int aButton) {
 		// iLogger.debug("touchUp");
 		mNewTouch = true;
 		mNewTouchEvent = true;
-		mTouching[pointer] = false;
+		mTouching[aPointer] = false;
 	}
 
-	public void touchDragged(int x, int y, int pointer) {
+	public void touchDragged(int aSX, int aSY, int aPointer) {
 		// iLogger.debug("touchDragged");
-		mTouching[pointer] = true;
-		mNewTouchEvent = ((mTouchX[pointer] != x) || (mTouchY[pointer] != y));
-		mTouchX[pointer] = x;
-		mTouchY[pointer] = y;
+		mTouching[aPointer] = true;
+		mNewTouchEvent = ((mTouchSX[aPointer] != aSX) || (mTouchSY[aPointer] != aSY));
+		mTouchSX[aPointer] = aSX;
+		mTouchSY[aPointer] = aSY;
 	}
 
-	public void touchMoved(int x, int y) {
+	public void touchMoved(int aX, int aY) {
 		// iLogger.debug("touchMoved");
-		mMouseOverX = x;
-		mMouseOverY = y;
+		mMouseOverSX = aX;
+		mMouseOverSY = aY;
 	}
 
-	public void scrolled(int amount) {
-		mMouseScrolled += amount;
+	public void scrolled(int aAmount) {
+		mMouseScrolled += aAmount;
 	}
 
 }
