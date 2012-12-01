@@ -557,12 +557,12 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 		for (int i = 0; i < mCellTextureV[aLayer].length; ++i) {
 			mCellTextureV[aLayer][i].calcDistance(aMinBX, aMaxBX, aMinBY, aMaxBY);
 		}
-		int c = 0;
-		for (CellTexture ct : mCellTextureV[aLayer]) {
-			if (ct.mDistanceSq <= 0) {
-				++c;
-			}
-		}
+//		int c = 0;
+//		for (CellTexture ct : mCellTextureV[aLayer]) {
+//			if (ct.mDistanceSq <= 0) {
+//				++c;
+//			}
+//		}
 		// iLogger.debug("c " + c);
 	}
 
