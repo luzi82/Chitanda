@@ -13,7 +13,6 @@ import com.badlogic.gdx.graphics.VertexAttribute;
 import com.badlogic.gdx.graphics.VertexAttributes;
 import com.badlogic.gdx.utils.Disposable;
 import com.luzi82.chitanda.ChitandaGame;
-import com.luzi82.chitanda.Const;
 import com.luzi82.chitanda.game.logic.Board;
 import com.luzi82.gdx.GrScreen;
 
