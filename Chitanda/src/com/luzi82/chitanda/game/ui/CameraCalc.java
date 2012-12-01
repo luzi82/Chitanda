@@ -11,6 +11,12 @@ public class CameraCalc {
 	public float mViewPortW;
 	public float mViewPortH;
 
+	// zoom limit
+	public float mZoomMin;
+	public float mZoomMax;
+	public float mLogZoomMin;
+	public float mLogZoomMax;
+
 	// camera
 	public float iCameraZoom;
 	public float iCameraBX;
@@ -20,12 +26,6 @@ public class CameraCalc {
 	public float mCameraZoomD;
 	public float mCameraBXD;
 	public float mCameraBYD;
-
-	// zoom limit
-	public float mZoomMin;
-	public float mZoomMax;
-	public float mLogZoomMin;
-	public float mLogZoomMax;
 
 	public CameraCalc() {
 		iCameraZoom = Math.min(Board.WIDTH, Board.HEIGHT);

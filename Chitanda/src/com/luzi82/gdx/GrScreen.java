@@ -4,12 +4,11 @@ import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 
-import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.Logger;
 
-public abstract class GrScreen<G extends GrGame> implements Screen, InputProcessor {
+public abstract class GrScreen<G extends GrGame> implements Screen {
 
 	protected G iParent;
 	protected int mScreenWidth;
@@ -166,50 +165,42 @@ public abstract class GrScreen<G extends GrGame> implements Screen, InputProcess
 		// dummy
 	}
 
-	@Override
-	public boolean keyDown(int keycode) {
+	public boolean keyDown(int keycode, long aTime) {
 		// dummy
 		return false;
 	}
 
-	@Override
-	public boolean keyUp(int keycode) {
+	public boolean keyUp(int keycode, long aTime) {
 		// dummy
 		return false;
 	}
 
-	@Override
-	public boolean keyTyped(char character) {
+	public boolean keyTyped(char character, long aTime) {
 		// dummy
 		return false;
 	}
 
-	@Override
-	public boolean touchDown(int x, int y, int pointer, int button) {
+	public boolean touchDown(int x, int y, int pointer, int button, long aTime) {
 		// dummy
 		return false;
 	}
 
-	@Override
-	public boolean touchUp(int x, int y, int pointer, int button) {
+	public boolean touchUp(int x, int y, int pointer, int button, long aTime) {
 		// dummy
 		return false;
 	}
 
-	@Override
-	public boolean touchDragged(int x, int y, int pointer) {
+	public boolean touchDragged(int x, int y, int pointer, long aTime) {
 		// dummy
 		return false;
 	}
 
-	@Override
-	public boolean touchMoved(int x, int y) {
+	public boolean touchMoved(int x, int y, long aTime) {
 		// dummy
 		return false;
 	}
 
-	@Override
-	public boolean scrolled(int amount) {
+	public boolean scrolled(int amount, long aTime) {
 		// dummy
 		return false;
 	}

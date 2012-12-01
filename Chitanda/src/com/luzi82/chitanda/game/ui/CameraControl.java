@@ -115,7 +115,7 @@ public class CameraControl {
 		mTouchChange = false;
 	}
 
-	public void touchDown(int aSX, int aSY, int aPointer, int aButton) {
+	public void touchDown(int aSX, int aSY, int aPointer, int aButton, long aTime) {
 		// iLogger.debug("touchDown");
 		mTouchCountChange = true;
 		mTouchChange = true;
@@ -124,14 +124,14 @@ public class CameraControl {
 		mTouchSY[aPointer] = aSY;
 	}
 
-	public void touchUp(int aSX, int aSY, int aPointer, int aButton) {
+	public void touchUp(int aSX, int aSY, int aPointer, int aButton, long aTime) {
 		// iLogger.debug("touchUp");
 		mTouchCountChange = true;
 		mTouchChange = true;
 		mTouching[aPointer] = false;
 	}
 
-	public void touchDragged(int aSX, int aSY, int aPointer) {
+	public void touchDragged(int aSX, int aSY, int aPointer, long aTime) {
 		// iLogger.debug("touchDragged");
 		mTouching[aPointer] = true;
 		mTouchChange = ((mTouchSX[aPointer] != aSX) || (mTouchSY[aPointer] != aSY));
@@ -139,13 +139,13 @@ public class CameraControl {
 		mTouchSY[aPointer] = aSY;
 	}
 
-	public void touchMoved(int aX, int aY) {
+	public void touchMoved(int aX, int aY, long aTime) {
 		// iLogger.debug("touchMoved");
 		mMouseOverSX = aX;
 		mMouseOverSY = aY;
 	}
 
-	public void scrolled(int aAmount) {
+	public void scrolled(int aAmount, long aTime) {
 		mMouseScrolled += aAmount;
 	}
 

@@ -28,56 +28,56 @@ public abstract class GrGame extends Game implements InputProcessor {
 	public boolean keyDown(int keycode) {
 		if (mCurrentScreen == null)
 			return false;
-		return mCurrentScreen.keyDown(keycode);
+		return mCurrentScreen.keyDown(keycode, Gdx.input.getCurrentEventTime());
 	}
 
 	@Override
 	public boolean keyUp(int keycode) {
 		if (mCurrentScreen == null)
 			return false;
-		return mCurrentScreen.keyUp(keycode);
+		return mCurrentScreen.keyUp(keycode, Gdx.input.getCurrentEventTime());
 	}
 
 	@Override
 	public boolean keyTyped(char character) {
 		if (mCurrentScreen == null)
 			return false;
-		return mCurrentScreen.keyTyped(character);
+		return mCurrentScreen.keyTyped(character, Gdx.input.getCurrentEventTime());
 	}
 
 	@Override
 	public boolean touchDown(int x, int y, int pointer, int button) {
 		if (mCurrentScreen == null)
 			return false;
-		return mCurrentScreen.touchDown(x, y, pointer, button);
+		return mCurrentScreen.touchDown(x, y, pointer, button, Gdx.input.getCurrentEventTime());
 	}
 
 	@Override
 	public boolean touchUp(int x, int y, int pointer, int button) {
 		if (mCurrentScreen == null)
 			return false;
-		return mCurrentScreen.touchUp(x, y, pointer, button);
+		return mCurrentScreen.touchUp(x, y, pointer, button, Gdx.input.getCurrentEventTime());
 	}
 
 	@Override
 	public boolean touchDragged(int x, int y, int pointer) {
 		if (mCurrentScreen == null)
 			return false;
-		return mCurrentScreen.touchDragged(x, y, pointer);
+		return mCurrentScreen.touchDragged(x, y, pointer, Gdx.input.getCurrentEventTime());
 	}
 
 	@Override
 	public boolean touchMoved(int x, int y) {
 		if (mCurrentScreen == null)
 			return false;
-		return mCurrentScreen.touchMoved(x, y);
+		return mCurrentScreen.touchMoved(x, y, Gdx.input.getCurrentEventTime());
 	}
 
 	@Override
 	public boolean scrolled(int amount) {
 		if (mCurrentScreen == null)
 			return false;
-		return mCurrentScreen.scrolled(amount);
+		return mCurrentScreen.scrolled(amount, Gdx.input.getCurrentEventTime());
 	}
 
 }

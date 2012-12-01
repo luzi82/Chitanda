@@ -340,9 +340,9 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 	}
 
 	@Override
-	public boolean touchDown(int x, int y, int pointer, int button) {
+	public boolean touchDown(int x, int y, int pointer, int button, long aTime) {
 		// iLogger.debug("touchDown");
-		mCameraTouchLogic.touchDown(x, y, pointer, button);
+		mCameraTouchLogic.touchDown(x, y, pointer, button, aTime);
 
 		int minSide = Math.min(mScreenWidth, mScreenHeight);
 		float blockPerPixel = mCameraManager.iCameraZoom / minSide;
@@ -375,36 +375,29 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 	}
 
 	@Override
-	public boolean touchUp(int x, int y, int pointer, int button) {
+	public boolean touchUp(int x, int y, int pointer, int button, long aTime) {
 		// iLogger.debug("touchUp");
-		mCameraTouchLogic.touchUp(x, y, pointer, button);
+		mCameraTouchLogic.touchUp(x, y, pointer, button, aTime);
 		return true;
 	}
 
 	@Override
-	public boolean touchDragged(int x, int y, int pointer) {
+	public boolean touchDragged(int x, int y, int pointer, long aTime) {
 		// iLogger.debug("touchDragged");
-		// mTouching[pointer] = true;
-		// mNewTouchEvent = ((mTouchX[pointer] != x) || (mTouchY[pointer] !=
-		// y));
-		// mTouchX[pointer] = x;
-		// mTouchY[pointer] = y;
-		mCameraTouchLogic.touchDragged(x, y, pointer);
+		mCameraTouchLogic.touchDragged(x, y, pointer, aTime);
 		return true;
 	}
 
 	@Override
-	public boolean touchMoved(int x, int y) {
+	public boolean touchMoved(int x, int y, long aTime) {
 		// iLogger.debug("touchMoved");
-		// mMouseOverX = x;
-		// mMouseOverY = y;
-		mCameraTouchLogic.touchMoved(x, y);
+		mCameraTouchLogic.touchMoved(x, y, aTime);
 		return true;
 	}
 
 	@Override
-	public boolean scrolled(int amount) {
-		mCameraTouchLogic.scrolled(amount);
+	public boolean scrolled(int amount, long aTime) {
+		mCameraTouchLogic.scrolled(amount, aTime);
 		return true;
 	}
 
@@ -562,16 +555,17 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 			}
 		}
 
-//		for (int i = 0; i < mCellTextureV[aLayer].length; ++i) {
-//			mCellTextureV[aLayer][i].calcDistance(aMinBX, aMaxBX, aMinBY, aMaxBY);
-//		}
-//		int c = 0;
-//		for (CellTexture ct : mCellTextureV[aLayer]) {
-//			if (ct.mDistanceSq <= 0) {
-//				++c;
-//			}
-//		}
-//		iLogger.debug("c " + c);
+		// for (int i = 0; i < mCellTextureV[aLayer].length; ++i) {
+		// mCellTextureV[aLayer][i].calcDistance(aMinBX, aMaxBX, aMinBY,
+		// aMaxBY);
+		// }
+		// int c = 0;
+		// for (CellTexture ct : mCellTextureV[aLayer]) {
+		// if (ct.mDistanceSq <= 0) {
+		// ++c;
+		// }
+		// }
+		// iLogger.debug("c " + c);
 	}
 
 	private void sortCellTextureV(float aMinBX, float aMaxBX, float aMinBY, float aMaxBY, int aLayer) {
