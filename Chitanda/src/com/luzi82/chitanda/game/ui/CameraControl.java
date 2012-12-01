@@ -14,7 +14,7 @@ public class CameraControl {
 	private int[] mTouchSY;
 	private float mTouchStartBXAvg;
 	private float mTouchStartBYAvg;
-	private float mTouchStartDiff;
+	private float mTouchStartSDiff;
 	private float mTouchStartCameraZoom;
 
 	// mouse
@@ -40,7 +40,7 @@ public class CameraControl {
 
 		float touchSXAvg = 0;
 		float touchSYAvg = 0;
-		float touchDiff = 0;
+		float touchSDiff = 0;
 		int touchCount = 0;
 
 		for (i = 0; i < TOUCH_MAX; ++i) {
@@ -64,15 +64,15 @@ public class CameraControl {
 					dd = mTouchSY[i] - touchSYAvg;
 					dd *= dd;
 					d += dd;
-					touchDiff += (float) Math.sqrt(d);
+					touchSDiff += (float) Math.sqrt(d);
 				}
 			}
-			touchDiff /= touchCount;
+			touchSDiff /= touchCount;
 			if (mTouchCountChange) {
 				mTouchStartBXAvg = mCameraLogic.screenToBoardX(touchSXAvg);
 				mTouchStartBYAvg = mCameraLogic.screenToBoardY(touchSYAvg);
 				if (touchCount > 1) {
-					mTouchStartDiff = touchDiff;
+					mTouchStartSDiff = touchSDiff;
 					mTouchStartCameraZoom = mCameraLogic.iCameraZoom;
 				} else {
 					mCameraLogic.smoothZoom(aDelta, reduce, intReduce);
@@ -83,7 +83,7 @@ public class CameraControl {
 				mTouchCountChange = false;
 			} else if (mTouchChange) {
 				if (touchCount > 1) {
-					float newZoom = mTouchStartCameraZoom * mTouchStartDiff / touchDiff;
+					float newZoom = mTouchStartCameraZoom * mTouchStartSDiff / touchSDiff;
 					mCameraLogic.zoomMove(newZoom, aDelta);
 				} else {
 					mCameraLogic.smoothZoom(aDelta, reduce, intReduce);
