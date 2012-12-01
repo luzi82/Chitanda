@@ -48,8 +48,8 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 
 	private Mesh mBlockGroupMesh;
 
-	private CameraLogic mCameraManager;
-	private CameraTouchLogic mCameraTouchLogic;
+	private CameraCalc mCameraManager;
+	private CameraControl mCameraTouchLogic;
 
 	// screen density
 	private float mBlockPerPixelBorder;
@@ -176,8 +176,8 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 		gl.glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
 		gl.glDisable(GL10.GL_DEPTH_TEST);
 
-		mCameraManager = new CameraLogic();
-		mCameraTouchLogic = new CameraTouchLogic(mCameraManager);
+		mCameraManager = new CameraCalc();
+		mCameraTouchLogic = new CameraControl(mCameraManager);
 	}
 
 	@Override
@@ -195,8 +195,8 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 		mCameraTouchLogic.update(aDelta);
 
 		mCamera.zoom = mCameraManager.iCameraZoom;
-		mCamera.position.x = mCameraManager.iCameraX;
-		mCamera.position.y = mCameraManager.iCameraY;
+		mCamera.position.x = mCameraManager.iCameraBX;
+		mCamera.position.y = mCameraManager.iCameraBY;
 		mCamera.update();
 		mCamera.apply(aGl);
 	}
@@ -334,8 +334,8 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 	@Override
 	public void onScreenResize() {
 		mCameraManager.onScreenResize(mScreenWidth, mScreenHeight);
-		mCamera.viewportWidth = mCameraManager.mViewPortWidth;
-		mCamera.viewportHeight = mCameraManager.mViewPortHeight;
+		mCamera.viewportWidth = mCameraManager.mViewPortW;
+		mCamera.viewportHeight = mCameraManager.mViewPortH;
 		mBlockPerPixelBorder = 10f / 6 / Gdx.graphics.getPpcX();
 		updateCellTextureV();
 	}

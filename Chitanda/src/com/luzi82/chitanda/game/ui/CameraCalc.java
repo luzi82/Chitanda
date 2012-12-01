@@ -3,23 +3,23 @@ package com.luzi82.chitanda.game.ui;
 import com.luzi82.chitanda.Const;
 import com.luzi82.chitanda.game.logic.Board;
 
-public class CameraLogic {
+public class CameraCalc {
 
 	// screen
-	public int mScreenWidth;
-	public int mScreenHeight;
-	public float mViewPortWidth;
-	public float mViewPortHeight;
+	public int mScreenW;
+	public int mScreenH;
+	public float mViewPortW;
+	public float mViewPortH;
 
 	// camera
 	public float iCameraZoom;
-	public float iCameraX;
-	public float iCameraY;
+	public float iCameraBX;
+	public float iCameraBY;
 
 	// camera dynamic
 	public float mCameraZoomD;
-	public float mCameraXD;
-	public float mCameraYD;
+	public float mCameraBXD;
+	public float mCameraBYD;
 
 	// zoom limit
 	public float mZoomMin;
@@ -27,13 +27,13 @@ public class CameraLogic {
 	public float mLogZoomMin;
 	public float mLogZoomMax;
 
-	public CameraLogic() {
+	public CameraCalc() {
 		iCameraZoom = Math.min(Board.WIDTH, Board.HEIGHT);
-		iCameraX = Board.WIDTH / 2;
-		iCameraY = Board.HEIGHT / 2;
+		iCameraBX = Board.WIDTH / 2;
+		iCameraBY = Board.HEIGHT / 2;
 		mCameraZoomD = 0;
-		mCameraXD = 0;
-		mCameraYD = 0;
+		mCameraBXD = 0;
+		mCameraBYD = 0;
 	}
 
 	public void zoomMove(float aNewZoom, float aDelta) {
@@ -42,57 +42,57 @@ public class CameraLogic {
 	}
 
 	public void xyMove(float aNewX, float aNewY, float aDelta) {
-		mCameraXD = (aNewX - iCameraX) / aDelta;
-		mCameraYD = (aNewY - iCameraY) / aDelta;
-		iCameraX = aNewX;
-		iCameraY = aNewY;
+		mCameraBXD = (aNewX - iCameraBX) / aDelta;
+		mCameraBYD = (aNewY - iCameraBY) / aDelta;
+		iCameraBX = aNewX;
+		iCameraBY = aNewY;
 	}
 
 	public void xySet(float aNewX, float aNewY) {
-		iCameraX = aNewX;
-		iCameraY = aNewY;
+		iCameraBX = aNewX;
+		iCameraBY = aNewY;
 	}
 
 	public float viewBY0Min() {
-		return iCameraY - iCameraZoom * mViewPortHeight / 2;
+		return iCameraBY - iCameraZoom * mViewPortH / 2;
 	}
 
 	public float viewBY0Max() {
-		return iCameraY + iCameraZoom * mViewPortHeight / 2;
+		return iCameraBY + iCameraZoom * mViewPortH / 2;
 	}
 
 	public float viewBX0Min() {
-		return iCameraX - iCameraZoom * mViewPortWidth / 2;
+		return iCameraBX - iCameraZoom * mViewPortW / 2;
 	}
 
 	public float viewBX0Max() {
-		return iCameraX + iCameraZoom * mViewPortWidth / 2;
+		return iCameraBX + iCameraZoom * mViewPortW / 2;
 	}
 
 	public float screenToBoardX(float aX) {
-		return iCameraX + (iCameraZoom * mViewPortWidth * (aX / mScreenWidth - 0.5f));
+		return iCameraBX + (iCameraZoom * mViewPortW * (aX / mScreenW - 0.5f));
 	}
 
 	public float screenToBoardY(float aY) {
-		return iCameraY + (iCameraZoom * mViewPortHeight * (1 - (aY / mScreenHeight) - 0.5f));
+		return iCameraBY + (iCameraZoom * mViewPortH * (1 - (aY / mScreenH) - 0.5f));
 	}
 
 	public float screenBoardToCameraX(float aScreenX, float aBoardX) {
-		return (iCameraZoom * mViewPortWidth) * (0.5f - aScreenX / mScreenWidth) + aBoardX;
+		return (iCameraZoom * mViewPortW) * (0.5f - aScreenX / mScreenW) + aBoardX;
 	}
 
 	public float screenBoardToCameraY(float aScreenY, float aBoardY) {
-		return (iCameraZoom * mViewPortHeight) * (0.5f + aScreenY / mScreenHeight - 1) + aBoardY;
+		return (iCameraZoom * mViewPortH) * (0.5f + aScreenY / mScreenH - 1) + aBoardY;
 	}
 
 	public void onScreenResize(int aScreenWidth, int aScreenHeight) {
-		mScreenWidth = aScreenWidth;
-		mScreenHeight = aScreenHeight;
-		mViewPortWidth = (mScreenWidth > mScreenHeight) ? (((float) mScreenWidth) / mScreenHeight) : 1;
-		mViewPortHeight = (mScreenWidth > mScreenHeight) ? 1 : (((float) mScreenHeight) / mScreenWidth);
+		mScreenW = aScreenWidth;
+		mScreenH = aScreenHeight;
+		mViewPortW = (mScreenW > mScreenH) ? (((float) mScreenW) / mScreenH) : 1;
+		mViewPortH = (mScreenW > mScreenH) ? 1 : (((float) mScreenH) / mScreenW);
 
 		mZoomMin = 4 * Const.PHI;
-		mZoomMax = Math.max(Board.HEIGHT / mViewPortHeight, Board.WIDTH / mViewPortWidth) * Const.PHI;
+		mZoomMax = Math.max(Board.HEIGHT / mViewPortH, Board.WIDTH / mViewPortW) * Const.PHI;
 		mLogZoomMin = (float) Math.log(mZoomMin);
 		mLogZoomMax = (float) Math.log(mZoomMax);
 	}
@@ -108,10 +108,10 @@ public class CameraLogic {
 	public void smoothXY(float aDelta, float aReduce, float aIntReduce) {
 		// iCameraX += mCameraXD * aIntReduce;
 		// iCameraY += mCameraYD * aIntReduce;
-		iCameraX = smooth(aDelta, aReduce, aIntReduce, iCameraX, mCameraXD, 0, Board.WIDTH);
-		iCameraY = smooth(aDelta, aReduce, aIntReduce, iCameraY, mCameraYD, 0, Board.HEIGHT);
-		mCameraXD *= aReduce;
-		mCameraYD *= aReduce;
+		iCameraBX = smooth(aDelta, aReduce, aIntReduce, iCameraBX, mCameraBXD, 0, Board.WIDTH);
+		iCameraBY = smooth(aDelta, aReduce, aIntReduce, iCameraBY, mCameraBYD, 0, Board.HEIGHT);
+		mCameraBXD *= aReduce;
+		mCameraBYD *= aReduce;
 	}
 
 	private static float smooth(float aDelta, float aReduce, float aIntReduce, float aS0, float aV, float aMin, float aMax) {

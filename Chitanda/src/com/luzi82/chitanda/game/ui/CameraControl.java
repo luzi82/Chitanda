@@ -3,7 +3,7 @@ package com.luzi82.chitanda.game.ui;
 import com.luzi82.chitanda.Const;
 
 
-public class CameraTouchLogic {
+public class CameraControl {
 
 	// touch
 	public static final int TOUCH_MAX = 16;
@@ -22,9 +22,9 @@ public class CameraTouchLogic {
 	private int mMouseOverSY;
 	private int mMouseScrolled;
 
-	public CameraLogic mCameraLogic;
+	public CameraCalc mCameraLogic;
 
-	public CameraTouchLogic(CameraLogic aCameraLogic) {
+	public CameraControl(CameraCalc aCameraLogic) {
 		mCameraLogic = aCameraLogic;
 
 		mTouching = new boolean[TOUCH_MAX];
