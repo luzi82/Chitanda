@@ -47,8 +47,8 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 
 	private Mesh mBlockGroupMesh;
 
-	private CameraCalc mCameraManager;
-	private CameraControl mCameraTouchLogic;
+	private CameraCalc mCameraCalc;
+	private CameraControl mCameraControl;
 
 	// screen density
 	private float mBlockPerPixelBorder;
@@ -175,8 +175,8 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 		gl.glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
 		gl.glDisable(GL10.GL_DEPTH_TEST);
 
-		mCameraManager = new CameraCalc();
-		mCameraTouchLogic = new CameraControl(mCameraManager);
+		mCameraCalc = new CameraCalc();
+		mCameraControl = new CameraControl(mCameraCalc);
 	}
 
 	@Override
@@ -191,11 +191,11 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 	}
 
 	private void updateCamera(float aDelta, GL10 aGl) {
-		mCameraTouchLogic.update(aDelta);
+		mCameraControl.update(aDelta);
 
-		mCamera.zoom = mCameraManager.iCameraRealZoom;
-		mCamera.position.x = mCameraManager.iCameraRealBX;
-		mCamera.position.y = mCameraManager.iCameraRealBY;
+		mCamera.zoom = mCameraCalc.iCameraRealZoom;
+		mCamera.position.x = mCameraCalc.iCameraRealBX;
+		mCamera.position.y = mCameraCalc.iCameraRealBY;
 		mCamera.update();
 		mCamera.apply(aGl);
 	}
@@ -217,8 +217,8 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 		aGl.glBlendFunc(GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA);
 		aGl.glDisable(GL10.GL_TEXTURE_2D);
 
-		if (mCameraManager.iCameraRealZoom < mCameraManager.mZoomMin * PHI * PHI) {
-			float a = mCameraManager.iCameraRealZoom / (mCameraManager.mZoomMin * PHI);
+		if (mCameraCalc.iCameraRealZoom < mCameraCalc.mZoomMin * PHI * PHI) {
+			float a = mCameraCalc.iCameraRealZoom / (mCameraCalc.mZoomMin * PHI);
 			a = (float) Math.log(a);
 			a /= (float) Math.log(PHI);
 			a = 1 - a;
@@ -233,8 +233,8 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 
 				int min, max;
 
-				min = (int) Math.floor(mCameraManager.viewBY0Min());
-				max = (int) Math.ceil(mCameraManager.viewBY0Max());
+				min = (int) Math.floor(mCameraCalc.viewBY0Min());
+				max = (int) Math.ceil(mCameraCalc.viewBY0Max());
 				if (min < 0)
 					min = 0;
 				if (max > Board.HEIGHT)
@@ -247,8 +247,8 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 					aGl.glPopMatrix();
 				}
 
-				min = (int) Math.floor(mCameraManager.viewBX0Min());
-				max = (int) Math.ceil(mCameraManager.viewBX0Max());
+				min = (int) Math.floor(mCameraCalc.viewBX0Min());
+				max = (int) Math.ceil(mCameraCalc.viewBX0Max());
 				if (min < 0)
 					min = 0;
 				if (max > Board.WIDTH)
@@ -270,7 +270,7 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 
 	private void drawBlock(GL10 aGl) {
 		int minSide = Math.min(mScreenWidth, mScreenHeight);
-		float blockPerPixel = mCameraManager.iCameraRealZoom / minSide;
+		float blockPerPixel = mCameraCalc.iCameraRealZoom / minSide;
 		if (blockPerPixel > mBlockPerPixelBorder) {
 			int layer = (blockPerPixel > 4) ? 2 //
 					: (blockPerPixel > 1) ? 1 //
@@ -279,10 +279,10 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 			aGl.glBlendFunc(GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA);
 			aGl.glEnable(GL10.GL_TEXTURE_2D);
 			aGl.glColor4f(1f, 1f, 1f, 1f);
-			int minBX = (int) Math.floor(mCameraManager.screenToBoardRealX(0));
-			int maxBX = (int) Math.ceil(mCameraManager.screenToBoardRealX(mScreenWidth));
-			int minBY = (int) Math.floor(mCameraManager.screenToBoardRealY(mScreenHeight));
-			int maxBY = (int) Math.ceil(mCameraManager.screenToBoardRealY(0));
+			int minBX = (int) Math.floor(mCameraCalc.screenToBoardRealX(0));
+			int maxBX = (int) Math.ceil(mCameraCalc.screenToBoardRealX(mScreenWidth));
+			int minBY = (int) Math.floor(mCameraCalc.screenToBoardRealY(mScreenHeight));
+			int maxBY = (int) Math.ceil(mCameraCalc.screenToBoardRealY(0));
 			minBX = minMax(0, minBX, Board.WIDTH);
 			maxBX = minMax(0, maxBX, Board.WIDTH);
 			minBY = minMax(0, minBY, Board.HEIGHT);
@@ -294,10 +294,10 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 			aGl.glDisable(GL10.GL_BLEND);
 			aGl.glBlendFunc(GL10.GL_ONE, GL10.GL_ZERO);
 			aGl.glDisable(GL10.GL_TEXTURE_2D);
-			int minX = (int) Math.floor(mCameraManager.screenToBoardRealX(0));
-			int maxX = (int) Math.ceil(mCameraManager.screenToBoardRealX(mScreenWidth));
-			int minY = (int) Math.floor(mCameraManager.screenToBoardRealY(mScreenHeight));
-			int maxY = (int) Math.ceil(mCameraManager.screenToBoardRealY(0));
+			int minX = (int) Math.floor(mCameraCalc.screenToBoardRealX(0));
+			int maxX = (int) Math.ceil(mCameraCalc.screenToBoardRealX(mScreenWidth));
+			int minY = (int) Math.floor(mCameraCalc.screenToBoardRealY(mScreenHeight));
+			int maxY = (int) Math.ceil(mCameraCalc.screenToBoardRealY(0));
 			minX = minMax(0, minX, Board.WIDTH);
 			maxX = minMax(0, maxX, Board.WIDTH);
 			minY = minMax(0, minY, Board.HEIGHT);
@@ -332,9 +332,9 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 
 	@Override
 	public void onScreenResize() {
-		mCameraManager.onScreenResize(mScreenWidth, mScreenHeight);
-		mCamera.viewportWidth = mCameraManager.mViewPortW;
-		mCamera.viewportHeight = mCameraManager.mViewPortH;
+		mCameraCalc.onScreenResize(mScreenWidth, mScreenHeight);
+		mCamera.viewportWidth = mCameraCalc.mViewPortW;
+		mCamera.viewportHeight = mCameraCalc.mViewPortH;
 		mBlockPerPixelBorder = 10f / 6 / Gdx.graphics.getPpcX();
 		updateCellTextureV();
 	}
@@ -343,10 +343,10 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 	public boolean touchDown(int x, int y, int pointer, int button, long aTime) {
 		// iLogger.debug("touchDown");
 		int minSide = Math.min(mScreenWidth, mScreenHeight);
-		float blockPerPixel = mCameraManager.iCameraRealZoom / minSide;
+		float blockPerPixel = mCameraCalc.iCameraRealZoom / minSide;
 		if (blockPerPixel <= mBlockPerPixelBorder) {
-			int bx = (int) mCameraManager.screenToBoardRealX(x);
-			int by = (int) mCameraManager.screenToBoardRealY(y);
+			int bx = (int) mCameraCalc.screenToBoardRealX(x);
+			int by = (int) mCameraCalc.screenToBoardRealY(y);
 			boolean good = true;
 			good = good && (bx >= 0);
 			good = good && (bx < Board.WIDTH);
@@ -355,7 +355,7 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 			if (good) {
 				if (mBoard.get0(bx, by)) {
 					mBoard.set(bx, by, false);
-					mCameraTouchLogic.mLockTime = System.currentTimeMillis() + 1000;
+					mCameraControl.mLockTime = System.currentTimeMillis() + 1000;
 					int tx = bx / CELLTEXTURE_SIZE;
 					int ty = by / CELLTEXTURE_SIZE;
 					for (int layer = 0; layer < LAYER_COUNT; ++layer) {
@@ -370,7 +370,7 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 			}
 		}
 
-		mCameraTouchLogic.touchDown(x, y, pointer, button, aTime);
+		mCameraControl.touchDown(x, y, pointer, button, aTime);
 
 		return true;
 	}
@@ -378,27 +378,27 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 	@Override
 	public boolean touchUp(int x, int y, int pointer, int button, long aTime) {
 		// iLogger.debug("touchUp");
-		mCameraTouchLogic.touchUp(x, y, pointer, button, aTime);
+		mCameraControl.touchUp(x, y, pointer, button, aTime);
 		return true;
 	}
 
 	@Override
 	public boolean touchDragged(int x, int y, int pointer, long aTime) {
 		// iLogger.debug("touchDragged");
-		mCameraTouchLogic.touchDragged(x, y, pointer, aTime);
+		mCameraControl.touchDragged(x, y, pointer, aTime);
 		return true;
 	}
 
 	@Override
 	public boolean touchMoved(int x, int y, long aTime) {
 		// iLogger.debug("touchMoved");
-		mCameraTouchLogic.touchMoved(x, y, aTime);
+		mCameraControl.touchMoved(x, y, aTime);
 		return true;
 	}
 
 	@Override
 	public boolean scrolled(int amount, long aTime) {
-		mCameraTouchLogic.scrolled(amount, aTime);
+		mCameraControl.scrolled(amount, aTime);
 		return true;
 	}
 
