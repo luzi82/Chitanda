@@ -48,6 +48,7 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 	private Mesh mBlockGroupMesh;
 
 	private CameraLogic mCameraManager;
+	private CameraTouchLogic mCameraTouchLogic;
 
 	// screen density
 	private float mBlockPerPixelBorder;
@@ -175,6 +176,7 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 		gl.glDisable(GL10.GL_DEPTH_TEST);
 
 		mCameraManager = new CameraLogic();
+		mCameraTouchLogic = new CameraTouchLogic(mCameraManager);
 	}
 
 	@Override
@@ -189,7 +191,7 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 	}
 
 	private void updateCamera(float aDelta, GL10 aGl) {
-		mCameraManager.update(aDelta);
+		mCameraTouchLogic.update(aDelta);
 
 		mCamera.zoom = mCameraManager.iCameraZoom;
 		mCamera.position.x = mCameraManager.iCameraX;
@@ -340,7 +342,7 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 	@Override
 	public boolean touchDown(int x, int y, int pointer, int button) {
 		// iLogger.debug("touchDown");
-		mCameraManager.touchDown(x, y, pointer, button);
+		mCameraTouchLogic.touchDown(x, y, pointer, button);
 
 		int minSide = Math.min(mScreenWidth, mScreenHeight);
 		float blockPerPixel = mCameraManager.iCameraZoom / minSide;
@@ -375,7 +377,7 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 	@Override
 	public boolean touchUp(int x, int y, int pointer, int button) {
 		// iLogger.debug("touchUp");
-		mCameraManager.touchUp(x, y, pointer, button);
+		mCameraTouchLogic.touchUp(x, y, pointer, button);
 		return true;
 	}
 
@@ -387,7 +389,7 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 		// y));
 		// mTouchX[pointer] = x;
 		// mTouchY[pointer] = y;
-		mCameraManager.touchDragged(x, y, pointer);
+		mCameraTouchLogic.touchDragged(x, y, pointer);
 		return true;
 	}
 
@@ -396,13 +398,13 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 		// iLogger.debug("touchMoved");
 		// mMouseOverX = x;
 		// mMouseOverY = y;
-		mCameraManager.touchMoved(x, y);
+		mCameraTouchLogic.touchMoved(x, y);
 		return true;
 	}
 
 	@Override
 	public boolean scrolled(int amount) {
-		mCameraManager.scrolled(amount);
+		mCameraTouchLogic.scrolled(amount);
 		return true;
 	}
 
@@ -557,12 +559,12 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 		for (int i = 0; i < mCellTextureV[aLayer].length; ++i) {
 			mCellTextureV[aLayer][i].calcDistance(aMinBX, aMaxBX, aMinBY, aMaxBY);
 		}
-//		int c = 0;
-//		for (CellTexture ct : mCellTextureV[aLayer]) {
-//			if (ct.mDistanceSq <= 0) {
-//				++c;
-//			}
-//		}
+		// int c = 0;
+		// for (CellTexture ct : mCellTextureV[aLayer]) {
+		// if (ct.mDistanceSq <= 0) {
+		// ++c;
+		// }
+		// }
 		// iLogger.debug("c " + c);
 	}
 
