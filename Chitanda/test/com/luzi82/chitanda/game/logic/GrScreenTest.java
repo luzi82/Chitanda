@@ -10,7 +10,7 @@ import com.luzi82.gdx.GrScreen;
 
 public class GrScreenTest {
 
-	static int mStaticV;;
+	public static int mStaticV;
 
 	@Test
 	public void breadthDispose() {
@@ -111,6 +111,15 @@ public class GrScreenTest {
 		t.dispose();
 		assertEquals(0, mStaticV);
 		assertNotNull(t.mD);
+	}
+
+	@Test
+	public void staticNoDispose() {
+		GrScreenTest_staticNoDispose_T t = new GrScreenTest_staticNoDispose_T(null);
+		mStaticV = 0;
+		t.dispose();
+		assertEquals(0, mStaticV);
+		assertNotNull(GrScreenTest_staticNoDispose_T.mD);
 	}
 
 }
