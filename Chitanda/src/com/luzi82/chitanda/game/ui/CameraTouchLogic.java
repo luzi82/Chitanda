@@ -1,6 +1,5 @@
 package com.luzi82.chitanda.game.ui;
 
-import com.badlogic.gdx.utils.Logger;
 
 public class CameraTouchLogic {
 
