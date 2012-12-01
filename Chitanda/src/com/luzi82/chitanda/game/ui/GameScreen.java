@@ -47,7 +47,7 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 
 	private Mesh mBlockGroupMesh;
 
-	private CameraManager mCameraManager;
+	private CameraLogic mCameraManager;
 
 	// screen density
 	private float mBlockPerPixelBorder;
@@ -174,7 +174,7 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 		gl.glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
 		gl.glDisable(GL10.GL_DEPTH_TEST);
 
-		mCameraManager = new CameraManager();
+		mCameraManager = new CameraLogic();
 	}
 
 	@Override
@@ -215,8 +215,8 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 		aGl.glBlendFunc(GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA);
 		aGl.glDisable(GL10.GL_TEXTURE_2D);
 
-		if (mCameraManager.iCameraZoom < CameraManager.ZOOM_MIN * PHI * PHI) {
-			float a = mCameraManager.iCameraZoom / (CameraManager.ZOOM_MIN * PHI);
+		if (mCameraManager.iCameraZoom < CameraLogic.ZOOM_MIN * PHI * PHI) {
+			float a = mCameraManager.iCameraZoom / (CameraLogic.ZOOM_MIN * PHI);
 			a = (float) Math.log(a);
 			a /= (float) Math.log(PHI);
 			a = 1 - a;

@@ -2,7 +2,7 @@ package com.luzi82.chitanda.game.ui;
 
 import com.luzi82.chitanda.game.logic.Board;
 
-public class CameraManager {
+public class CameraLogic {
 
 	public static final float SMOOTH_REDUCE = 1f / 256;
 	public static final float DIV_LN_SMOOTH_REDUCE = (float) (1 / Math.log(SMOOTH_REDUCE));
@@ -39,7 +39,7 @@ public class CameraManager {
 	private int mMouseOverY;
 	private int mMouseScrolled;
 
-	public CameraManager() {
+	public CameraLogic() {
 		iCameraZoom = Math.min(Board.WIDTH, Board.HEIGHT);
 		iCameraX = Board.WIDTH / 2;
 		iCameraY = Board.HEIGHT / 2;
