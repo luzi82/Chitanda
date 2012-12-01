@@ -486,13 +486,19 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 	}
 
 	private static final int LAYER_COUNT = 3;
-	private CellTexture[][] mCellTextureV = new CellTexture[LAYER_COUNT][];
-	@SuppressWarnings("unchecked")
-	private TreeMap<Integer, CellTexture>[] mCellTextureM = new TreeMap[3];
+	private CellTexture[][] mCellTextureV;
+	private TreeMap<Integer, CellTexture>[] mCellTextureM;
 	private Pixmap mCellTexturePixmap;
 
+	@SuppressWarnings("unchecked")
 	private void updateCellTextureV() {
 		iLogger.debug("updateCellTextureV");
+
+		if (mCellTextureV == null)
+			mCellTextureV = new CellTexture[LAYER_COUNT][];
+		if (mCellTextureM == null)
+			mCellTextureM = new TreeMap[LAYER_COUNT];
+
 		// TODO object reuse
 		int ctvw = ((mScreenWidth + (CELLTEXTURE_SIZE - 1)) / CELLTEXTURE_SIZE) + 1;
 		int ctvh = ((mScreenHeight + (CELLTEXTURE_SIZE - 1)) / CELLTEXTURE_SIZE) + 1;
