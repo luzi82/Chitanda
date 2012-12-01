@@ -13,6 +13,7 @@ import com.badlogic.gdx.graphics.VertexAttribute;
 import com.badlogic.gdx.graphics.VertexAttributes;
 import com.badlogic.gdx.utils.Disposable;
 import com.luzi82.chitanda.ChitandaGame;
+import com.luzi82.chitanda.Const;
 import com.luzi82.chitanda.game.logic.Board;
 import com.luzi82.gdx.GrScreen;
 
@@ -217,8 +218,8 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 		aGl.glBlendFunc(GL10.GL_SRC_ALPHA, GL10.GL_ONE_MINUS_SRC_ALPHA);
 		aGl.glDisable(GL10.GL_TEXTURE_2D);
 
-		if (mCameraManager.iCameraZoom < CameraLogic.ZOOM_MIN * PHI * PHI) {
-			float a = mCameraManager.iCameraZoom / (CameraLogic.ZOOM_MIN * PHI);
+		if (mCameraManager.iCameraZoom < mCameraManager.mZoomMin * PHI * PHI) {
+			float a = mCameraManager.iCameraZoom / (mCameraManager.mZoomMin * PHI);
 			a = (float) Math.log(a);
 			a /= (float) Math.log(PHI);
 			a = 1 - a;
@@ -504,10 +505,9 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 		int ctvh = ((mScreenHeight + (CELLTEXTURE_SIZE - 1)) / CELLTEXTURE_SIZE) + 1;
 		int len = ctvw * ctvh;
 		for (int layer = 0; layer < LAYER_COUNT; ++layer) {
-			mCellTextureM[layer] = new TreeMap<Integer, CellTexture>();
 			if (mCellTextureV[layer] != null) {
 				if (mCellTextureV[layer].length == len)
-					return;
+					continue;
 				for (int i = 0; i < mCellTextureV[layer].length; ++i) {
 					CellTexture ct = mCellTextureV[layer][i];
 					if (ct != null)
@@ -516,6 +516,7 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 				}
 				mCellTextureV[layer] = null;
 			}
+			mCellTextureM[layer] = new TreeMap<Integer, CellTexture>();
 			mCellTextureV[layer] = new CellTexture[len];
 			for (int i = 0; i < len; ++i) {
 				mCellTextureV[layer][i] = new CellTexture();
@@ -562,16 +563,16 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 			}
 		}
 
-		for (int i = 0; i < mCellTextureV[aLayer].length; ++i) {
-			mCellTextureV[aLayer][i].calcDistance(aMinBX, aMaxBX, aMinBY, aMaxBY);
-		}
-		// int c = 0;
-		// for (CellTexture ct : mCellTextureV[aLayer]) {
-		// if (ct.mDistanceSq <= 0) {
-		// ++c;
-		// }
-		// }
-		// iLogger.debug("c " + c);
+//		for (int i = 0; i < mCellTextureV[aLayer].length; ++i) {
+//			mCellTextureV[aLayer][i].calcDistance(aMinBX, aMaxBX, aMinBY, aMaxBY);
+//		}
+//		int c = 0;
+//		for (CellTexture ct : mCellTextureV[aLayer]) {
+//			if (ct.mDistanceSq <= 0) {
+//				++c;
+//			}
+//		}
+//		iLogger.debug("c " + c);
 	}
 
 	private void sortCellTextureV(float aMinBX, float aMaxBX, float aMinBY, float aMaxBY, int aLayer) {

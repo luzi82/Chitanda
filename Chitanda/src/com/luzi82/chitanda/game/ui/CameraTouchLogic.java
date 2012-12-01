@@ -1,5 +1,7 @@
 package com.luzi82.chitanda.game.ui;
 
+import com.luzi82.chitanda.Const;
+
 
 public class CameraTouchLogic {
 
@@ -33,8 +35,8 @@ public class CameraTouchLogic {
 	public void update(float aDelta) {
 		int i;
 
-		float reduce = (float) Math.pow(CameraLogic.SMOOTH_REDUCE, aDelta);
-		float intReduce = (reduce - 1) * CameraLogic.DIV_LN_SMOOTH_REDUCE;
+		float reduce = (float) Math.pow(Const.SMOOTH_REDUCE, aDelta);
+		float intReduce = (reduce - 1) * Const.DIV_LN_SMOOTH_REDUCE;
 
 		float touchSXAvg = 0;
 		float touchSYAvg = 0;
@@ -99,15 +101,11 @@ public class CameraTouchLogic {
 			float mouseBX = mCameraLogic.screenToBoardX(mMouseOverSX);
 			float mouseBY = mCameraLogic.screenToBoardY(mMouseOverSY);
 
-			mCameraLogic.mCameraZoomD -= mMouseScrolled * CameraLogic.PHI;
+			mCameraLogic.mCameraZoomD -= mMouseScrolled * Const.PHI;
 			mCameraLogic.smoothZoom(aDelta, reduce, intReduce);
 
 			float newCameraBX = mCameraLogic.screenBoardToCameraX(mMouseOverSX, mouseBX);
 			float newCameraBY = mCameraLogic.screenBoardToCameraY(mMouseOverSY, mouseBY);
-			// mCameraXD = (newX - iCameraX) / aDelta;
-			// mCameraYD = (newY - iCameraY) / aDelta;
-			// iCameraX = newX;
-			// iCameraY = newY;
 			mCameraLogic.xyMove(newCameraBX, newCameraBY, aDelta);
 			mMouseScrolled = 0;
 		} else {

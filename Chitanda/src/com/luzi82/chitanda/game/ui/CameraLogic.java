@@ -1,12 +1,9 @@
 package com.luzi82.chitanda.game.ui;
 
+import com.luzi82.chitanda.Const;
 import com.luzi82.chitanda.game.logic.Board;
 
 public class CameraLogic {
-
-	public static final float SMOOTH_REDUCE = 1f / 256;
-	public static final float DIV_LN_SMOOTH_REDUCE = (float) (1 / Math.log(SMOOTH_REDUCE));
-	public static final float PHI = (float) (1 + Math.sqrt(5)) / 2;
 
 	// screen
 	public int mScreenWidth;
@@ -23,6 +20,12 @@ public class CameraLogic {
 	public float mCameraZoomD;
 	public float mCameraXD;
 	public float mCameraYD;
+
+	// zoom limit
+	public float mZoomMin;
+	public float mZoomMax;
+	public float mLogZoomMin;
+	public float mLogZoomMax;
 
 	public CameraLogic() {
 		iCameraZoom = Math.min(Board.WIDTH, Board.HEIGHT);
@@ -87,17 +90,17 @@ public class CameraLogic {
 		mScreenHeight = aScreenHeight;
 		mViewPortWidth = (mScreenWidth > mScreenHeight) ? (((float) mScreenWidth) / mScreenHeight) : 1;
 		mViewPortHeight = (mScreenWidth > mScreenHeight) ? 1 : (((float) mScreenHeight) / mScreenWidth);
-	}
 
-	static public final float ZOOM_MIN = PHI * 4;
-	static public final float ZOOM_MAX = 4 * 1024 * PHI;
-	static public final float LOG_ZOOM_MIN = (float) Math.log(ZOOM_MIN);
-	static public final float LOG_ZOOM_MAX = (float) Math.log(ZOOM_MAX);
+		mZoomMin = 4 * Const.PHI;
+		mZoomMax = Math.max(Board.HEIGHT / mViewPortHeight, Board.WIDTH / mViewPortWidth) * Const.PHI;
+		mLogZoomMin = (float) Math.log(mZoomMin);
+		mLogZoomMax = (float) Math.log(mZoomMax);
+	}
 
 	public void smoothZoom(float aDelta, float aReduce, float aIntReduce) {
 		// iCameraZoom *= (float) Math.pow(Math.E, mCameraZoomD * aIntReduce);
 		float logCameraZoom = (float) Math.log(iCameraZoom);
-		logCameraZoom = smooth(aDelta, aReduce, aIntReduce, logCameraZoom, mCameraZoomD, LOG_ZOOM_MIN, LOG_ZOOM_MAX);
+		logCameraZoom = smooth(aDelta, aReduce, aIntReduce, logCameraZoom, mCameraZoomD, mLogZoomMin, mLogZoomMax);
 		iCameraZoom = (float) Math.pow(Math.E, logCameraZoom);
 		mCameraZoomD *= aReduce;
 	}
