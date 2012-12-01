@@ -89,4 +89,28 @@ public class GrScreenTest {
 		assertNull(t.mD);
 	}
 
+	@Test
+	public void finalNoDispose() {
+		class D implements Disposable {
+			@Override
+			public void dispose() {
+				++mStaticV;
+			}
+		}
+
+		class T extends GrScreen<GrGame> {
+			public final D mD = new D();
+
+			protected T(GrGame aParent) {
+				super(aParent);
+			}
+		}
+
+		T t = new T(null);
+		mStaticV = 0;
+		t.dispose();
+		assertEquals(0, mStaticV);
+		assertNotNull(t.mD);
+	}
+
 }

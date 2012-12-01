@@ -2,6 +2,7 @@ package com.luzi82.gdx;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Screen;
@@ -49,7 +50,7 @@ public abstract class GrScreen<G extends GrGame> implements Screen, InputProcess
 
 	@Override
 	public final void render(float aDelta) {
-//		iLogger.debug("render");
+		// iLogger.debug("render");
 		if (iMemberLoaded)
 			onScreenRender(aDelta);
 	}
@@ -87,6 +88,8 @@ public abstract class GrScreen<G extends GrGame> implements Screen, InputProcess
 		for (Class<?> c = this.getClass(); c != GrScreen.class; c = c.getSuperclass()) {
 			Field[] fv = c.getDeclaredFields();
 			for (Field f : fv) {
+				if ((f.getModifiers() & Modifier.FINAL) != 0)
+					continue;
 				String n = f.getName();
 				f.setAccessible(true);
 				if (n.startsWith("m")) {
