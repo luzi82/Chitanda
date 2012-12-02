@@ -155,4 +155,16 @@ public abstract class GrScreen<G extends GrGame> implements Screen {
 		return false;
 	}
 
+	public int getScreenWidth() {
+		return mScreenWidth;
+	}
+
+	public int getScreenHeight() {
+		return mScreenHeight;
+	}
+
+	public Logger getLogger() {
+		return iLogger;
+	}
+
 }
