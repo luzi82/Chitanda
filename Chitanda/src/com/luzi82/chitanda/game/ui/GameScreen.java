@@ -346,6 +346,8 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 			if (!mCameraControl.mMoving) {
 				mCameraCalc.mLockTime = System.currentTimeMillis() + 1000;
 			}
+		} else {
+			mCameraControl.mMoving = true;
 		}
 
 		mCameraControl.touchDown(x, y, pointer, button, aTime);
@@ -358,7 +360,7 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 		// iLogger.debug("touchUp");
 		mCameraControl.touchUp(x, y, pointer, button, aTime);
 
-		if (mCameraCalc.mLockTime >= 0) {
+		if ((mCameraCalc.mLockTime >= 0) && (!mCameraControl.mMoving)) {
 			int minSide = Math.min(mScreenWidth, mScreenHeight);
 			float blockPerPixel = mCameraCalc.iCameraRealZoom / minSide;
 			if (blockPerPixel <= mBlockPerPixelBorder) {
