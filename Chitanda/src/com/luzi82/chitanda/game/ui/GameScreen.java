@@ -345,29 +345,7 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 		int minSide = Math.min(mScreenWidth, mScreenHeight);
 		float blockPerPixel = mCameraCalc.iCameraRealZoom / minSide;
 		if (blockPerPixel <= mBlockPerPixelBorder) {
-			int bx = (int) mCameraCalc.screenToBoardRealX(x);
-			int by = (int) mCameraCalc.screenToBoardRealY(y);
-			boolean good = true;
-			good = good && (bx >= 0);
-			good = good && (bx < Board.WIDTH);
-			good = good && (by >= 0);
-			good = good && (by < Board.HEIGHT);
-			if (good) {
-				if (mBoard.get0(bx, by)) {
-					mBoard.set(bx, by, false);
-					mCameraCalc.mLockTime = System.currentTimeMillis() + 1000;
-					int tx = bx / CELLTEXTURE_SIZE;
-					int ty = by / CELLTEXTURE_SIZE;
-					for (int layer = 0; layer < LAYER_COUNT; ++layer) {
-						CellTexture ct = mCellTextureM[layer].remove((tx << 16) | ty);
-						if (ct != null) {
-							ct.mUpdate = false;
-						}
-						tx >>= 2;
-						ty >>= 2;
-					}
-				}
-			}
+			mCameraCalc.mLockTime = System.currentTimeMillis() + 1000;
 		}
 
 		mCameraControl.touchDown(x, y, pointer, button, aTime);
@@ -379,6 +357,36 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 	public boolean touchUp(int x, int y, int pointer, int button, long aTime) {
 		// iLogger.debug("touchUp");
 		mCameraControl.touchUp(x, y, pointer, button, aTime);
+
+		if (mCameraCalc.mLockTime >= 0) {
+			int minSide = Math.min(mScreenWidth, mScreenHeight);
+			float blockPerPixel = mCameraCalc.iCameraRealZoom / minSide;
+			if (blockPerPixel <= mBlockPerPixelBorder) {
+				int bx = (int) mCameraCalc.screenToBoardRealX(x);
+				int by = (int) mCameraCalc.screenToBoardRealY(y);
+				boolean good = true;
+				good = good && (bx >= 0);
+				good = good && (bx < Board.WIDTH);
+				good = good && (by >= 0);
+				good = good && (by < Board.HEIGHT);
+				if (good) {
+					if (mBoard.get0(bx, by)) {
+						mBoard.set(bx, by, false);
+						int tx = bx / CELLTEXTURE_SIZE;
+						int ty = by / CELLTEXTURE_SIZE;
+						for (int layer = 0; layer < LAYER_COUNT; ++layer) {
+							CellTexture ct = mCellTextureM[layer].remove((tx << 16) | ty);
+							if (ct != null) {
+								ct.mUpdate = false;
+							}
+							tx >>= 2;
+							ty >>= 2;
+						}
+					}
+				}
+			}
+		}
+
 		return true;
 	}
 

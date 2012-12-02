@@ -48,12 +48,6 @@ public class CameraControl {
 		float touchSDiff = 0;
 		int touchCount = 0;
 
-		if (mTouchCountChange) {
-			mCameraCalc.iCameraBX = mCameraCalc.iCameraRealBX;
-			mCameraCalc.iCameraBY = mCameraCalc.iCameraRealBY;
-			mCameraCalc.iCameraZoom = mCameraCalc.iCameraRealZoom;
-		}
-
 		for (i = 0; i < TOUCH_MAX; ++i) {
 			if (!mTouching[i])
 				continue;
@@ -61,6 +55,7 @@ public class CameraControl {
 			touchSYAvg += mTouchSY[i];
 			++touchCount;
 		}
+
 		if (touchCount > 0) {
 			touchSXAvg /= touchCount;
 			touchSYAvg /= touchCount;
@@ -125,6 +120,15 @@ public class CameraControl {
 		}
 		mTouchChange = false;
 
+		if (mTouchCountChange && (touchCount == 0) && (mCameraCalc.mLockTime > 0)) {
+			mCameraCalc.iCameraBX = mCameraCalc.iCameraRealBX;
+			mCameraCalc.iCameraBY = mCameraCalc.iCameraRealBY;
+			mCameraCalc.iCameraZoom = mCameraCalc.iCameraRealZoom;
+			mCameraCalc.mCameraBXD = 0;
+			mCameraCalc.mCameraBYD = 0;
+			mCameraCalc.mCameraZoomD = 0;
+		}
+
 		mCameraCalc.updateLock(reduce);
 	}
 
@@ -154,7 +158,7 @@ public class CameraControl {
 		mTouchSY[aPointer] = aSY;
 
 		float diff = CameraCalc.diff(aSX, aSY, mTouchStartSX[aPointer], mTouchStartSY[aPointer]);
-		if (diff > Gdx.graphics.getPpcX()) {
+		if (diff > Gdx.graphics.getPpcX() * 3) {
 			mCameraCalc.mLockTime = -1;
 		}
 	}
