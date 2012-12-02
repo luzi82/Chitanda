@@ -101,7 +101,7 @@ public class TouchTrace implements Disposable {
 
 	@Override
 	public void dispose() {
-		GrDeepDispose.disposeMember(this, TouchTrace.class);
+		GrDeepDispose.disposeMember(this, super.getClass());
 	}
 
 	enum Type {
