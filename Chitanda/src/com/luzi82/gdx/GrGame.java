@@ -4,13 +4,16 @@ import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Screen;
+import com.luzi82.chitanda.game.ui.TouchTrace;
 
 public abstract class GrGame extends Game implements InputProcessor {
 
 	GrScreen<?> mCurrentScreen;
+	TouchTrace mTouchTrace;
 
 	@Override
 	public void create() {
+		mTouchTrace = new TouchTrace();
 		Gdx.input.setInputProcessor(this);
 	}
 
@@ -49,6 +52,8 @@ public abstract class GrGame extends Game implements InputProcessor {
 	public boolean touchDown(int x, int y, int pointer, int button) {
 		if (mCurrentScreen == null)
 			return false;
+		if (mTouchTrace != null)
+			mTouchTrace.touchDown(x, y, pointer, button);
 		return mCurrentScreen.touchDown(x, y, pointer, button, Gdx.input.getCurrentEventTime());
 	}
 
@@ -56,6 +61,8 @@ public abstract class GrGame extends Game implements InputProcessor {
 	public boolean touchUp(int x, int y, int pointer, int button) {
 		if (mCurrentScreen == null)
 			return false;
+		if (mTouchTrace != null)
+			mTouchTrace.touchUp(x, y, pointer, button);
 		return mCurrentScreen.touchUp(x, y, pointer, button, Gdx.input.getCurrentEventTime());
 	}
 
@@ -63,6 +70,8 @@ public abstract class GrGame extends Game implements InputProcessor {
 	public boolean touchDragged(int x, int y, int pointer) {
 		if (mCurrentScreen == null)
 			return false;
+		if (mTouchTrace != null)
+			mTouchTrace.touchDragged(x, y, pointer);
 		return mCurrentScreen.touchDragged(x, y, pointer, Gdx.input.getCurrentEventTime());
 	}
 
@@ -70,6 +79,8 @@ public abstract class GrGame extends Game implements InputProcessor {
 	public boolean touchMoved(int x, int y) {
 		if (mCurrentScreen == null)
 			return false;
+		if (mTouchTrace != null)
+			mTouchTrace.touchMoved(x, y);
 		return mCurrentScreen.touchMoved(x, y, Gdx.input.getCurrentEventTime());
 	}
 
@@ -80,4 +91,16 @@ public abstract class GrGame extends Game implements InputProcessor {
 		return mCurrentScreen.scrolled(amount, Gdx.input.getCurrentEventTime());
 	}
 
+	@Override
+	public void render() {
+		super.render();
+		if (mTouchTrace != null)
+			mTouchTrace.render();
+	}
+
+	@Override
+	public void dispose() {
+		mTouchTrace.dispose();
+		super.dispose();
+	}
 }

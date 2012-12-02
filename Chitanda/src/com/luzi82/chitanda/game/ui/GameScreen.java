@@ -63,8 +63,6 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 
 	@Override
 	protected void onScreenLoad() {
-		GL10 gl = Gdx.graphics.getGL10();
-
 		mBoard = new Board();
 		mBoard.setAll(true);
 
@@ -172,9 +170,6 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 				});
 		mBlockGroupMesh.setIndices(new short[] { 0, 1, 2, 3 });
 
-		gl.glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
-		gl.glDisable(GL10.GL_DEPTH_TEST);
-
 		mCameraCalc = new CameraCalc();
 		mCameraControl = new CameraControl(mCameraCalc);
 	}
@@ -182,6 +177,8 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 	@Override
 	public void onScreenRender(float aDelta) {
 		GL10 gl = Gdx.graphics.getGL10();
+		gl.glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
+		gl.glDisable(GL10.GL_DEPTH_TEST);
 		gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
 
 		updateCamera(aDelta, gl);
@@ -204,6 +201,7 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 		aGl.glDisable(GL10.GL_BLEND);
 		aGl.glBlendFunc(GL10.GL_ONE, GL10.GL_ZERO);
 		aGl.glEnable(GL10.GL_TEXTURE_2D);
+		aGl.glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 		mBaseTexture0.bind();
 		mBaseMesh0.render(GL10.GL_TRIANGLE_STRIP);
 		mBaseTexture1.bind();
