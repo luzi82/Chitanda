@@ -1,11 +1,6 @@
 package com.luzi82.gdx;
 
-import java.lang.reflect.Array;
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
-
 import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.utils.Disposable;
 import com.badlogic.gdx.utils.Logger;
 
 public abstract class GrScreen<G extends GrGame> implements Screen {
@@ -84,53 +79,8 @@ public abstract class GrScreen<G extends GrGame> implements Screen {
 
 	private void disposeMember() {
 		// iLogger.debug("disposeMember");
-		for (Class<?> c = this.getClass(); c != GrScreen.class; c = c.getSuperclass()) {
-			Field[] fv = c.getDeclaredFields();
-			for (Field f : fv) {
-				if ((f.getModifiers() & (Modifier.FINAL | Modifier.STATIC)) != 0)
-					continue;
-				String n = f.getName();
-				f.setAccessible(true);
-				if (n.startsWith("m")) {
-					// iLogger.debug(n);
-					try {
-						Object o = f.get(this);
-						deepDispose(o);
-						if (!f.getType().isPrimitive())
-							f.set(this, null);
-					} catch (IllegalArgumentException e) {
-						// iLogger.debug("", e);
-					} catch (IllegalAccessException e) {
-						// iLogger.debug("", e);
-					}
-				}
-				f.setAccessible(false);
-			}
-		}
+		GrDeepDispose.disposeMember(this, GrScreen.class);
 		iMemberLoaded = false;
-	}
-
-	private void deepDispose(Object mObject) {
-		if (mObject == null)
-			return;
-		Class<?> c = mObject.getClass();
-		if (c.isPrimitive()) {
-			// do nothing
-		} else if (Disposable.class.isAssignableFrom(c)) {
-			Disposable d = (Disposable) mObject;
-			d.dispose();
-		} else if (c.isArray()) {
-			Class<?> cc = c.getComponentType();
-			if (cc.isPrimitive()) {
-				// do nothing
-			} else {
-				for (int i = 0; i < Array.getLength(mObject); ++i) {
-					Object o = Array.get(mObject, i);
-					deepDispose(o);
-					Array.set(mObject, i, null);
-				}
-			}
-		}
 	}
 
 	protected void onScreenLoad() {
