@@ -1,5 +1,6 @@
 package com.luzi82.chitanda.game.ui;
 
+import com.badlogic.gdx.Gdx;
 import com.luzi82.chitanda.Const;
 
 public class CameraControl {
@@ -13,6 +14,8 @@ public class CameraControl {
 	private boolean[] mTouching;
 	private int[] mTouchSX;
 	private int[] mTouchSY;
+	private int[] mTouchStartSX;
+	private int[] mTouchStartSY;
 	private float mTouchStartBXAvg;
 	private float mTouchStartBYAvg;
 	private float mTouchStartSDiff;
@@ -29,6 +32,9 @@ public class CameraControl {
 		mTouching = new boolean[TOUCH_MAX];
 		mTouchSX = new int[TOUCH_MAX];
 		mTouchSY = new int[TOUCH_MAX];
+
+		mTouchStartSX = new int[TOUCH_MAX];
+		mTouchStartSY = new int[TOUCH_MAX];
 	}
 
 	public void update(float aDelta) {
@@ -118,7 +124,7 @@ public class CameraControl {
 			mCameraCalc.smoothXY(aDelta, reduce, intReduce);
 		}
 		mTouchChange = false;
-		
+
 		mCameraCalc.updateLock(reduce);
 	}
 
@@ -129,6 +135,8 @@ public class CameraControl {
 		mTouching[aPointer] = true;
 		mTouchSX[aPointer] = aSX;
 		mTouchSY[aPointer] = aSY;
+		mTouchStartSX[aPointer] = aSX;
+		mTouchStartSY[aPointer] = aSY;
 	}
 
 	public void touchUp(int aSX, int aSY, int aPointer, int aButton, long aTime) {
@@ -144,6 +152,11 @@ public class CameraControl {
 		mTouchChange = ((mTouchSX[aPointer] != aSX) || (mTouchSY[aPointer] != aSY));
 		mTouchSX[aPointer] = aSX;
 		mTouchSY[aPointer] = aSY;
+
+		float diff = CameraCalc.diff(aSX, aSY, mTouchStartSX[aPointer], mTouchStartSY[aPointer]);
+		if (diff > Gdx.graphics.getPpcX()) {
+			mCameraCalc.mLockTime = -1;
+		}
 	}
 
 	public void touchMoved(int aX, int aY, long aTime) {

@@ -180,11 +180,11 @@ public class CameraCalc {
 
 	}
 
-	// private static float diff(float aX0, float aY0, float aX1, float aY1) {
-	// float dx = aX1 - aX0;
-	// float dy = aY1 - aY0;
-	// return (float) Math.sqrt(dx * dx + dy * dy);
-	// }
+	public static float diff(float aX0, float aY0, float aX1, float aY1) {
+		float dx = aX1 - aX0;
+		float dy = aY1 - aY0;
+		return (float) Math.sqrt(dx * dx + dy * dy);
+	}
 
 	private static class CalcLockRet {
 		float mValue;
