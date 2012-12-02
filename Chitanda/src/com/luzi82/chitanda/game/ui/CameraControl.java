@@ -6,9 +6,6 @@ public class CameraControl {
 
 	public CameraCalc mCameraCalc;
 
-	// lock
-	public long mLockTime;
-
 	// touch
 	public static final int TOUCH_MAX = 16;
 	private boolean mTouchCountChange;
@@ -29,8 +26,6 @@ public class CameraControl {
 	public CameraControl(CameraCalc aCameraCalc) {
 		mCameraCalc = aCameraCalc;
 
-		mLockTime = -1;
-
 		mTouching = new boolean[TOUCH_MAX];
 		mTouchSX = new int[TOUCH_MAX];
 		mTouchSY = new int[TOUCH_MAX];
@@ -38,10 +33,6 @@ public class CameraControl {
 
 	public void update(float aDelta) {
 		int i;
-
-		if (mLockTime < System.currentTimeMillis()) {
-			mLockTime = -1;
-		}
 
 		float reduce = (float) Math.pow(Const.SMOOTH_REDUCE, aDelta);
 		float intReduce = (reduce - 1) * Const.DIV_LN_SMOOTH_REDUCE;
@@ -127,12 +118,8 @@ public class CameraControl {
 			mCameraCalc.smoothXY(aDelta, reduce, intReduce);
 		}
 		mTouchChange = false;
-
-		if (mLockTime < 0) {
-			mCameraCalc.iCameraRealBX = mCameraCalc.iCameraBX;
-			mCameraCalc.iCameraRealBY = mCameraCalc.iCameraBY;
-			mCameraCalc.iCameraRealZoom = mCameraCalc.iCameraZoom;
-		}
+		
+		mCameraCalc.updateLock();
 	}
 
 	public void touchDown(int aSX, int aSY, int aPointer, int aButton, long aTime) {

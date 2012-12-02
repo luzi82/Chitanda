@@ -16,7 +16,11 @@ public class CameraCalc {
 	public float mZoomMax;
 	public float mLogZoomMin;
 	public float mLogZoomMax;
-	
+
+	// lock
+	public long mLockTime;
+	public float mLockRadius;
+
 	// camera (lock protected)
 	public float iCameraRealZoom;
 	public float iCameraRealBX;
@@ -33,12 +37,27 @@ public class CameraCalc {
 	public float mCameraBYD;
 
 	public CameraCalc() {
+		mLockTime = -1;
+		mLockRadius = 0;
+
 		iCameraZoom = Math.min(Board.WIDTH, Board.HEIGHT);
 		iCameraBX = Board.WIDTH / 2;
 		iCameraBY = Board.HEIGHT / 2;
 		mCameraZoomD = 0;
 		mCameraBXD = 0;
 		mCameraBYD = 0;
+	}
+
+	public void updateLock() {
+		if (mLockTime < System.currentTimeMillis()) {
+			mLockTime = -1;
+		}
+
+		if (mLockTime < 0) {
+			iCameraRealBX = iCameraBX;
+			iCameraRealBY = iCameraBY;
+			iCameraRealZoom = iCameraZoom;
+		}
 	}
 
 	public void zoomMove(float aNewZoom, float aDelta) {

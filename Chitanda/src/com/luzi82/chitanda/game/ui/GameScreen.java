@@ -355,7 +355,7 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 			if (good) {
 				if (mBoard.get0(bx, by)) {
 					mBoard.set(bx, by, false);
-					mCameraControl.mLockTime = System.currentTimeMillis() + 1000;
+					mCameraCalc.mLockTime = System.currentTimeMillis() + 1000;
 					int tx = bx / CELLTEXTURE_SIZE;
 					int ty = by / CELLTEXTURE_SIZE;
 					for (int layer = 0; layer < LAYER_COUNT; ++layer) {
