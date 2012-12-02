@@ -343,7 +343,9 @@ public class GameScreen extends GrScreen<ChitandaGame> {
 		int minSide = Math.min(mScreenWidth, mScreenHeight);
 		float blockPerPixel = mCameraCalc.iCameraRealZoom / minSide;
 		if (blockPerPixel <= mBlockPerPixelBorder) {
-			mCameraCalc.mLockTime = System.currentTimeMillis() + 1000;
+			if (!mCameraControl.mMoving) {
+				mCameraCalc.mLockTime = System.currentTimeMillis() + 1000;
+			}
 		}
 
 		mCameraControl.touchDown(x, y, pointer, button, aTime);

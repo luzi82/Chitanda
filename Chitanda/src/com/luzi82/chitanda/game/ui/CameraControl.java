@@ -7,6 +7,9 @@ public class CameraControl {
 
 	public CameraCalc mCameraCalc;
 
+	// moving
+	public boolean mMoving;
+
 	// touch
 	public static final int TOUCH_MAX = 16;
 	private boolean mTouchCountChange;
@@ -28,6 +31,8 @@ public class CameraControl {
 
 	public CameraControl(CameraCalc aCameraCalc) {
 		mCameraCalc = aCameraCalc;
+
+		mMoving = false;
 
 		mTouching = new boolean[TOUCH_MAX];
 		mTouchSX = new int[TOUCH_MAX];
@@ -117,6 +122,7 @@ public class CameraControl {
 		} else {
 			mCameraCalc.smoothZoom(aDelta, reduce, intReduce);
 			mCameraCalc.smoothXY(aDelta, reduce, intReduce);
+			mMoving = false;
 		}
 		mTouchChange = false;
 
@@ -159,6 +165,7 @@ public class CameraControl {
 
 		float diff = CameraCalc.diff(aSX, aSY, mTouchStartSX[aPointer], mTouchStartSY[aPointer]);
 		if (diff > Gdx.graphics.getPpcX() * 3) {
+			mMoving = true;
 			mCameraCalc.mLockTime = -1;
 		}
 	}
