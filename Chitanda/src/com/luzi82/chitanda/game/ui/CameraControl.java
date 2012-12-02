@@ -119,7 +119,7 @@ public class CameraControl {
 		}
 		mTouchChange = false;
 		
-		mCameraCalc.updateLock();
+		mCameraCalc.updateLock(reduce);
 	}
 
 	public void touchDown(int aSX, int aSY, int aPointer, int aButton, long aTime) {

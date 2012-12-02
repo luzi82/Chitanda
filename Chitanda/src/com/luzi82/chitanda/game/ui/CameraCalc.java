@@ -19,7 +19,9 @@ public class CameraCalc {
 
 	// lock
 	public long mLockTime;
-	public float mLockRadius;
+	public float mLockBXDiff;
+	public float mLockBYDiff;
+	public float mLockZoomDiff;
 
 	// camera (lock protected)
 	public float iCameraRealZoom;
@@ -38,7 +40,9 @@ public class CameraCalc {
 
 	public CameraCalc() {
 		mLockTime = -1;
-		mLockRadius = 0;
+		mLockBXDiff = 0;
+		mLockBYDiff = 0;
+		mLockZoomDiff = 0;
 
 		iCameraZoom = Math.min(Board.WIDTH, Board.HEIGHT);
 		iCameraBX = Board.WIDTH / 2;
@@ -48,15 +52,29 @@ public class CameraCalc {
 		mCameraBYD = 0;
 	}
 
-	public void updateLock() {
+	public void updateLock(float aReduce) {
 		if (mLockTime < System.currentTimeMillis()) {
 			mLockTime = -1;
 		}
 
 		if (mLockTime < 0) {
-			iCameraRealBX = iCameraBX;
-			iCameraRealBY = iCameraBY;
-			iCameraRealZoom = iCameraZoom;
+			CalcLockRet clr;
+
+			clr = calcLock(iCameraRealBX, iCameraBX, mLockBXDiff, aReduce);
+			iCameraRealBX = clr.mValue;
+			mLockBXDiff = clr.mDiff;
+
+			clr = calcLock(iCameraRealBY, iCameraBY, mLockBYDiff, aReduce);
+			iCameraRealBY = clr.mValue;
+			mLockBYDiff = clr.mDiff;
+
+			clr = calcLock((float) Math.log(iCameraRealZoom), (float) Math.log(iCameraZoom), mLockZoomDiff, aReduce);
+			iCameraRealZoom = (float) Math.pow(Math.E, clr.mValue);
+			mLockZoomDiff = clr.mDiff;
+		} else {
+			mLockBXDiff = iCameraRealBX - iCameraBX;
+			mLockBYDiff = iCameraRealBY - iCameraBY;
+			mLockZoomDiff = Math.abs((float) Math.log(iCameraRealZoom / iCameraZoom));
 		}
 	}
 
@@ -160,6 +178,36 @@ public class CameraCalc {
 			return s1;
 		}
 
+	}
+
+	// private static float diff(float aX0, float aY0, float aX1, float aY1) {
+	// float dx = aX1 - aX0;
+	// float dy = aY1 - aY0;
+	// return (float) Math.sqrt(dx * dx + dy * dy);
+	// }
+
+	private static class CalcLockRet {
+		float mValue;
+		float mDiff;
+
+		CalcLockRet(float aTar, float aDiff) {
+			mValue = aTar;
+			mDiff = aDiff;
+		}
+	}
+
+	private static CalcLockRet calcLock(float aOri, float aTar, float aDiff, float aReduce) {
+		if (aDiff == 0)
+			return new CalcLockRet(aTar, 0);
+		if (aOri == aTar)
+			return new CalcLockRet(aTar, 0);
+		float diff = aOri - aTar;
+		aDiff *= aReduce;
+		if (diff * aDiff <= 0)
+			return new CalcLockRet(aTar, 0);
+		if (Math.abs(diff) <= Math.abs(aDiff))
+			return new CalcLockRet(aOri, diff);
+		return new CalcLockRet(aTar + aDiff, aDiff);
 	}
 
 }
