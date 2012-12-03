@@ -153,7 +153,7 @@ public class Board {
 					BB[out++] = c;
 					BB[out++] = c;
 					if ((b & 1) == 1) {
-						BB[out++] = (byte) 0x7f;
+						BB[out++] = (byte) 0xff;
 					} else {
 						BB[out++] = (byte) 0x00;
 					}
