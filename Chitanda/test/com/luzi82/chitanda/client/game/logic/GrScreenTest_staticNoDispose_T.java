@@ -1,4 +1,4 @@
-package com.luzi82.chitanda.game.logic;
+package com.luzi82.chitanda.client.game.logic;
 import com.badlogic.gdx.utils.Disposable;
 import com.luzi82.gdx.GrGame;
 import com.luzi82.gdx.GrScreen;

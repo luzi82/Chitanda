@@ -1,12 +1,10 @@
-package com.luzi82.chitanda.game.logic;
+package com.luzi82.chitanda.common.game;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
-
-import com.luzi82.chitanda.client.game.logic.Board;
 
 public class BoardTest {
 
