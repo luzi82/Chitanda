@@ -6,6 +6,8 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
+import com.luzi82.chitanda.client.game.logic.Board;
+
 public class BoardTest {
 
 	@Test

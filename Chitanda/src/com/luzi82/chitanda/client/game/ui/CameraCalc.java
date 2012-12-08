@@ -1,7 +1,7 @@
-package com.luzi82.chitanda.game.ui;
+package com.luzi82.chitanda.client.game.ui;
 
-import com.luzi82.chitanda.Const;
-import com.luzi82.chitanda.game.logic.Board;
+import com.luzi82.chitanda.client.Const;
+import com.luzi82.chitanda.client.game.logic.Board;
 
 public class CameraCalc {
 

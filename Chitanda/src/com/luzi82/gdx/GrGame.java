@@ -4,7 +4,7 @@ import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Screen;
-import com.luzi82.chitanda.game.ui.TouchTrace;
+import com.luzi82.chitanda.client.game.ui.TouchTrace;
 
 public abstract class GrGame extends Game implements InputProcessor {
 

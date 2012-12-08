@@ -1,4 +1,4 @@
-package com.luzi82.chitanda.game.ui;
+package com.luzi82.chitanda.client.game.ui;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL10;
@@ -8,8 +8,8 @@ import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.VertexAttribute;
 import com.badlogic.gdx.graphics.VertexAttributes;
-import com.luzi82.chitanda.ChitandaGame;
-import com.luzi82.chitanda.game.logic.Board;
+import com.luzi82.chitanda.client.ChitandaGame;
+import com.luzi82.chitanda.client.game.logic.Board;
 import com.luzi82.gdx.GrScreen;
 
 public class GameScreen extends GrScreen<ChitandaGame> {

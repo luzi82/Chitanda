@@ -4,6 +4,7 @@ import android.os.Bundle;
 
 import com.badlogic.gdx.backends.android.AndroidApplication;
 import com.badlogic.gdx.backends.android.AndroidApplicationConfiguration;
+import com.luzi82.chitanda.client.ChitandaGame;
 
 public class MainActivity extends AndroidApplication {
     @Override

@@ -1,4 +1,4 @@
-package com.luzi82.chitanda.game.logic;
+package com.luzi82.chitanda.client.game.logic;
 
 import java.nio.ByteBuffer;
 

@@ -1,4 +1,4 @@
-package com.luzi82.chitanda;
+package com.luzi82.chitanda.client;
 
 import com.luzi82.gdx.GrScreen;
 

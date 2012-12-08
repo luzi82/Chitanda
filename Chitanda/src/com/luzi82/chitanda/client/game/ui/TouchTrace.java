@@ -1,4 +1,4 @@
-package com.luzi82.chitanda.game.ui;
+package com.luzi82.chitanda.client.game.ui;
 
 import java.util.LinkedList;
 
@@ -10,7 +10,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.VertexAttribute;
 import com.badlogic.gdx.graphics.VertexAttributes;
 import com.badlogic.gdx.utils.Disposable;
-import com.luzi82.chitanda.Const;
+import com.luzi82.chitanda.client.Const;
 import com.luzi82.gdx.GrDeepDispose;
 
 public class TouchTrace implements Disposable {
