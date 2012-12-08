@@ -71,8 +71,6 @@ public class Board {
 			} else {
 				++v2;
 			}
-
-			++mData2[i2];
 		} else {
 			mData0[i0] &= ~(1 << o0);
 
