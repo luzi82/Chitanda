@@ -12,6 +12,7 @@ public class BoardTest {
 	public void testGetSet() {
 		Board b = new Board();
 		int x, y, xx, yy;
+		boolean setRet;
 		for (x = 0; x < 100; ++x) {
 			for (y = 0; y < 100; ++y) {
 				xx = x;
@@ -30,14 +31,16 @@ public class BoardTest {
 				xx = x;
 				yy = y;
 				assertFalse(b.get0(xx, yy));
-				b.set(xx, yy, true);
+				setRet=b.set(xx, yy, true);
 				assertTrue(b.get0(xx, yy));
+				assertTrue(setRet);
 
 				xx = Board.WIDTH - x - 1;
 				yy = Board.HEIGHT - y - 1;
 				assertFalse(b.get0(xx, yy));
-				b.set(xx, yy, true);
+				setRet=b.set(xx, yy, true);
 				assertTrue(b.get0(xx, yy));
+				assertTrue(setRet);
 			}
 		}
 		for (x = 0; x < 100; ++x) {
@@ -45,14 +48,50 @@ public class BoardTest {
 				xx = x;
 				yy = y;
 				assertTrue(b.get0(xx, yy));
-				b.set(xx, yy, false);
-				assertFalse(b.get0(xx, yy));
+				setRet=b.set(xx, yy, true);
+				assertTrue(b.get0(xx, yy));
+				assertFalse(setRet);
 
 				xx = Board.WIDTH - x - 1;
 				yy = Board.HEIGHT - y - 1;
 				assertTrue(b.get0(xx, yy));
-				b.set(xx, yy, false);
+				setRet=b.set(xx, yy, true);
+				assertTrue(b.get0(xx, yy));
+				assertFalse(setRet);
+			}
+		}
+		for (x = 0; x < 100; ++x) {
+			for (y = 0; y < 100; ++y) {
+				xx = x;
+				yy = y;
+				assertTrue(b.get0(xx, yy));
+				setRet=b.set(xx, yy, false);
 				assertFalse(b.get0(xx, yy));
+				assertTrue(setRet);
+
+				xx = Board.WIDTH - x - 1;
+				yy = Board.HEIGHT - y - 1;
+				assertTrue(b.get0(xx, yy));
+				setRet=b.set(xx, yy, false);
+				assertFalse(b.get0(xx, yy));
+				assertTrue(setRet);
+			}
+		}
+		for (x = 0; x < 100; ++x) {
+			for (y = 0; y < 100; ++y) {
+				xx = x;
+				yy = y;
+				assertFalse(b.get0(xx, yy));
+				setRet=b.set(xx, yy, false);
+				assertFalse(b.get0(xx, yy));
+				assertFalse(setRet);
+
+				xx = Board.WIDTH - x - 1;
+				yy = Board.HEIGHT - y - 1;
+				assertFalse(b.get0(xx, yy));
+				setRet=b.set(xx, yy, false);
+				assertFalse(b.get0(xx, yy));
+				assertFalse(setRet);
 			}
 		}
 	}

@@ -41,12 +41,12 @@ public class Board {
 		return ((int) (mData2[i2])) & 0xff;
 	}
 
-	public void set(int aX, int aY, boolean aV) {
+	public boolean set(int aX, int aY, boolean aV) {
 		int i0 = xyToIndex0(aX, aY);
 		int o0 = xyToOffset0(aX, aY);
 		boolean v = (mData0[i0] & (1 << o0)) != 0;
 		if (v == aV)
-			return;
+			return false;
 		int i1 = xyToIndex1(aX >> 2, aY >> 2);
 		int o1 = xyToOffset1(aX >> 2, aY >> 2);
 		int i2 = xyToIndex2(aX >> 4, aY >> 4);
@@ -76,6 +76,7 @@ public class Board {
 		mData1[i1] = d1;
 		mData2[i2] = (byte) v2;
 		++mVersion;
+		return true;
 	}
 
 	public void setAll(boolean aValue) {
@@ -91,7 +92,7 @@ public class Board {
 		}
 		++mVersion;
 	}
-
+	
 	public static int xyToIndex0(int aX, int aY) {
 		return (aX + aY * WIDTH) / Byte.SIZE;
 	}
