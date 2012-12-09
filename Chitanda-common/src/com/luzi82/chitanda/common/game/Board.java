@@ -2,6 +2,8 @@ package com.luzi82.chitanda.common.game;
 
 public class Board {
 
+	static public final int UPDATE_BLOCK_SIZE = 16;
+
 	public static final int WIDTH = 2048 * 4;
 	public static final int HEIGHT = 1024 * 4;
 
@@ -51,38 +53,23 @@ public class Board {
 		byte d1 = mData1[i1];
 		int v1 = (d1 >> o1) & 0xf;
 		int v2 = mData2[i2];
+		int vd = aV ? 1 : -1;
 		if (aV) {
 			mData0[i0] |= 1 << o0;
-
-			if (v1 == 7) {
-				v1 = layerTotal1(xyToIndex0(aX, aY & (~3)), o0 & (~3));
-				v1 -= (v1 >> 3);
-			} else {
-				++v1;
-			}
-
-			if (v2 == 0x7f) {
-				v2 = layerTotal2(xyToIndex0(aX & (~0xf), aY & (~0xf)));
-				v2 -= (v2 >> 7);
-			} else {
-				++v2;
-			}
 		} else {
 			mData0[i0] &= ~(1 << o0);
-
-			if (v1 == 7) {
-				v1 = layerTotal1(xyToIndex0(aX, aY & (~3)), o0 & (~3));
-				v1 -= (v1 >> 3);
-			} else {
-				--v1;
-			}
-
-			if (v2 == 0x7f) {
-				v2 = layerTotal2(xyToIndex0(aX & (~0xf), aY & (~0xf)));
-				v2 -= (v2 >> 7);
-			} else {
-				--v2;
-			}
+		}
+		if (v1 == 7) {
+			v1 = layerTotal1(xyToIndex0(aX, aY & (~3)), o0 & (~3));
+			v1 -= (v1 >> 3);
+		} else {
+			v1 += vd;
+		}
+		if (v2 == 0x7f) {
+			v2 = layerTotal2(xyToIndex0(aX & (~0xf), aY & (~0xf)));
+			v2 -= (v2 >> 7);
+		} else {
+			v2 += vd;
 		}
 		d1 &= ~(0xf << o1);
 		d1 |= v1 << o1;
