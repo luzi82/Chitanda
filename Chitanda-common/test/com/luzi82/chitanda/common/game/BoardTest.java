@@ -431,4 +431,183 @@ public class BoardTest {
 		}
 	}
 
+	@Test
+	public void testUpdateOverTrue() {
+		Board b = new Board();
+		Random r = new Random();
+
+		boolean[][] block = new boolean[16][16];
+		boolean[][] block0 = new boolean[16][16];
+		byte[] data = new byte[32];
+		int[][] l1 = new int[4][4];
+		int l2;
+
+		int t;
+
+		for (int c = 0; c < 100; ++c) {
+			b.setAll(true);
+
+			for (int i = 0; i < 32; ++i) {
+				data[i] = 0;
+			}
+			for (int i = 0; i < 4; ++i) {
+				for (int j = 0; j < 4; ++j) {
+					l1[i][j] = 0;
+				}
+			}
+			l2 = 0;
+			for (int i = 0; i < 16; ++i) {
+				for (int j = 0; j < 16; ++j) {
+					boolean tmpB = r.nextBoolean();
+					block[i][j] = tmpB;
+					data[j * 2 + i / 8] |= tmpB ? (1 << (i % 8)) : 0;
+					l1[i >> 2][j >> 2] += tmpB ? 1 : 0;
+					l2 += tmpB ? 1 : 0;
+				}
+			}
+
+			boolean tB = b.update(0, 0, data);
+			assertTrue(tB);
+			for (int i = 0; i < 16; ++i) {
+				for (int j = 0; j < 16; ++j) {
+					assertEquals(block[i][j], b.get0(i, j));
+				}
+			}
+			for (int i = 0; i < 4; ++i) {
+				for (int j = 0; j < 4; ++j) {
+					t = l1[i][j];
+					t -= t >> 3;
+					assertEquals(t, b.get1(i, j));
+				}
+			}
+			t = l2;
+			t -= t >> 7;
+			assertEquals(t, b.get2(0, 0));
+
+			// /
+
+			for (int i = 0; i < 32; ++i) {
+				data[i] = 0;
+			}
+			for (int i = 0; i < 16; ++i) {
+				for (int j = 0; j < 16; ++j) {
+					boolean tmpB = block[i][j] || r.nextBoolean();
+					block0[i][j] = tmpB;
+					data[j * 2 + i / 8] |= tmpB ? (1 << (i % 8)) : 0;
+				}
+			}
+
+			tB = b.update(0, 0, data);
+			assertFalse(tB);
+			for (int i = 0; i < 16; ++i) {
+				for (int j = 0; j < 16; ++j) {
+					assertEquals(block[i][j], b.get0(i, j));
+				}
+			}
+			for (int i = 0; i < 4; ++i) {
+				for (int j = 0; j < 4; ++j) {
+					t = l1[i][j];
+					t -= t >> 3;
+					assertEquals(t, b.get1(i, j));
+				}
+			}
+			t = l2;
+			t -= t >> 7;
+			assertEquals(t, b.get2(0, 0));
+		}
+	}
+
+	@Test
+	public void testUpdateOverFalse() {
+		Board b = new Board();
+		Random r = new Random();
+
+		boolean[][] block = new boolean[16][16];
+		byte[] data = new byte[32];
+		int[][] l1 = new int[4][4];
+		int l2;
+
+		int t;
+
+		for (int c = 0; c < 100; ++c) {
+			b.setAll(true);
+
+			for (int i = 0; i < 32; ++i) {
+				data[i] = 0;
+			}
+			for (int i = 0; i < 4; ++i) {
+				for (int j = 0; j < 4; ++j) {
+					l1[i][j] = 0;
+				}
+			}
+			l2 = 0;
+			for (int i = 0; i < 16; ++i) {
+				for (int j = 0; j < 16; ++j) {
+					boolean tmpB = r.nextBoolean();
+					block[i][j] = tmpB;
+					data[j * 2 + i / 8] |= tmpB ? (1 << (i % 8)) : 0;
+					l1[i >> 2][j >> 2] += tmpB ? 1 : 0;
+					l2 += tmpB ? 1 : 0;
+				}
+			}
+
+			boolean tB = b.update(0, 0, data);
+			assertTrue(tB);
+			for (int i = 0; i < 16; ++i) {
+				for (int j = 0; j < 16; ++j) {
+					assertEquals(block[i][j], b.get0(i, j));
+				}
+			}
+			for (int i = 0; i < 4; ++i) {
+				for (int j = 0; j < 4; ++j) {
+					t = l1[i][j];
+					t -= t >> 3;
+					assertEquals(t, b.get1(i, j));
+				}
+			}
+			t = l2;
+			t -= t >> 7;
+			assertEquals(t, b.get2(0, 0));
+
+			// /
+
+			for (int i = 0; i < 32; ++i) {
+				data[i] = 0;
+			}
+			for (int i = 0; i < 4; ++i) {
+				for (int j = 0; j < 4; ++j) {
+					l1[i][j] = 0;
+				}
+			}
+			l2 = 0;
+			for (int i = 0; i < 16; ++i) {
+				for (int j = 0; j < 16; ++j) {
+					boolean tmpB = block[i][j] && r.nextBoolean();
+					block[i][j] = tmpB;
+					data[j * 2 + i / 8] |= tmpB ? (1 << (i % 8)) : 0;
+					l1[i >> 2][j >> 2] += tmpB ? 1 : 0;
+					l2 += tmpB ? 1 : 0;
+				}
+			}
+
+			tB = b.update(0, 0, data);
+			assertTrue(tB);
+			for (int i = 0; i < 16; ++i) {
+				for (int j = 0; j < 16; ++j) {
+					assertEquals(block[i][j], b.get0(i, j));
+				}
+			}
+			for (int i = 0; i < 4; ++i) {
+				for (int j = 0; j < 4; ++j) {
+					t = l1[i][j];
+					t -= t >> 3;
+					assertEquals(t, b.get1(i, j));
+				}
+			}
+			t = l2;
+			t -= t >> 7;
+			assertEquals(t, b.get2(0, 0));
+		}
+	}
+
 }
