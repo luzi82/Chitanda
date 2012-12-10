@@ -79,6 +79,61 @@ public class Board {
 		return true;
 	}
 
+	public boolean update(int aX0, int aY0, byte[] aData) {
+		boolean ret = false;
+		final int i0 = xyToIndex0(aX0, aY0);
+		int ii0 = i0;
+		int iii0;
+		int di = 0;
+		byte d, dd, ddd;
+		for (int y0 = 0; y0 < UPDATE_BLOCK_SIZE; ++y0) {
+			iii0 = ii0;
+			for (int xi0 = 0; xi0 < 2; ++xi0) {
+				dd = aData[di];
+				d = mData0[iii0];
+				ddd = (byte) (d & dd);
+				if (ddd != d) {
+					mData0[iii0] = ddd;
+					ret = true;
+				}
+				++iii0;
+				++di;
+			}
+			ii0 += YSTEP0;
+		}
+		if (ret) {
+			ii0 = i0;
+			int i1 = xyToIndex1(aX0 >> 2, aY0 >> 2);
+			int ii1;
+			byte d1;
+			int v1;
+			for (int y1 = 0; y1 < 4; ++y1) {
+				ii1 = i1;
+				iii0 = ii0;
+				for (int xi1 = 0; xi1 < 2; ++xi1) {
+					d1 = 0;
+					for (int xo1 = 0; xo1 < 8; xo1 += 4) {
+						v1 = layerTotal1(iii0, xo1);
+						v1 -= (v1 >> 3);
+						d1 |= v1 << xo1;
+					}
+					mData1[ii1] = d1;
+					++ii1;
+					++iii0;
+				}
+				i1 += YSTEP1;
+				ii0 += YSTEP0 << 2;
+			}
+			int i2 = xyToIndex2(aX0 >> 4, aY0 >> 4);
+			int v2;
+			v2 = layerTotal2(i0);
+			v2 -= (v2 >> 7);
+			mData2[i2] = (byte) v2;
+			++mVersion;
+		}
+		return ret;
+	}
+
 	public void setAll(boolean aValue) {
 		byte v = (byte) (aValue ? 0xff : 0x00);
 		for (int i = 0; i < DATA0_SIZE; ++i) {
@@ -92,7 +147,7 @@ public class Board {
 		}
 		++mVersion;
 	}
-	
+
 	public static int xyToIndex0(int aX, int aY) {
 		return (aX + aY * WIDTH) / Byte.SIZE;
 	}

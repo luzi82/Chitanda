@@ -4,6 +4,8 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertEquals;
 
+import java.util.Random;
+
 import org.junit.Test;
 
 public class BoardTest {
@@ -31,49 +33,15 @@ public class BoardTest {
 				xx = x;
 				yy = y;
 				assertFalse(b.get0(xx, yy));
-				setRet=b.set(xx, yy, true);
+				setRet = b.set(xx, yy, true);
 				assertTrue(b.get0(xx, yy));
 				assertTrue(setRet);
 
 				xx = Board.WIDTH - x - 1;
 				yy = Board.HEIGHT - y - 1;
 				assertFalse(b.get0(xx, yy));
-				setRet=b.set(xx, yy, true);
+				setRet = b.set(xx, yy, true);
 				assertTrue(b.get0(xx, yy));
-				assertTrue(setRet);
-			}
-		}
-		for (x = 0; x < 100; ++x) {
-			for (y = 0; y < 100; ++y) {
-				xx = x;
-				yy = y;
-				assertTrue(b.get0(xx, yy));
-				setRet=b.set(xx, yy, true);
-				assertTrue(b.get0(xx, yy));
-				assertFalse(setRet);
-
-				xx = Board.WIDTH - x - 1;
-				yy = Board.HEIGHT - y - 1;
-				assertTrue(b.get0(xx, yy));
-				setRet=b.set(xx, yy, true);
-				assertTrue(b.get0(xx, yy));
-				assertFalse(setRet);
-			}
-		}
-		for (x = 0; x < 100; ++x) {
-			for (y = 0; y < 100; ++y) {
-				xx = x;
-				yy = y;
-				assertTrue(b.get0(xx, yy));
-				setRet=b.set(xx, yy, false);
-				assertFalse(b.get0(xx, yy));
-				assertTrue(setRet);
-
-				xx = Board.WIDTH - x - 1;
-				yy = Board.HEIGHT - y - 1;
-				assertTrue(b.get0(xx, yy));
-				setRet=b.set(xx, yy, false);
-				assertFalse(b.get0(xx, yy));
 				assertTrue(setRet);
 			}
 		}
@@ -81,15 +49,49 @@ public class BoardTest {
 			for (y = 0; y < 100; ++y) {
 				xx = x;
 				yy = y;
+				assertTrue(b.get0(xx, yy));
+				setRet = b.set(xx, yy, true);
+				assertTrue(b.get0(xx, yy));
+				assertFalse(setRet);
+
+				xx = Board.WIDTH - x - 1;
+				yy = Board.HEIGHT - y - 1;
+				assertTrue(b.get0(xx, yy));
+				setRet = b.set(xx, yy, true);
+				assertTrue(b.get0(xx, yy));
+				assertFalse(setRet);
+			}
+		}
+		for (x = 0; x < 100; ++x) {
+			for (y = 0; y < 100; ++y) {
+				xx = x;
+				yy = y;
+				assertTrue(b.get0(xx, yy));
+				setRet = b.set(xx, yy, false);
 				assertFalse(b.get0(xx, yy));
-				setRet=b.set(xx, yy, false);
+				assertTrue(setRet);
+
+				xx = Board.WIDTH - x - 1;
+				yy = Board.HEIGHT - y - 1;
+				assertTrue(b.get0(xx, yy));
+				setRet = b.set(xx, yy, false);
+				assertFalse(b.get0(xx, yy));
+				assertTrue(setRet);
+			}
+		}
+		for (x = 0; x < 100; ++x) {
+			for (y = 0; y < 100; ++y) {
+				xx = x;
+				yy = y;
+				assertFalse(b.get0(xx, yy));
+				setRet = b.set(xx, yy, false);
 				assertFalse(b.get0(xx, yy));
 				assertFalse(setRet);
 
 				xx = Board.WIDTH - x - 1;
 				yy = Board.HEIGHT - y - 1;
 				assertFalse(b.get0(xx, yy));
-				setRet=b.set(xx, yy, false);
+				setRet = b.set(xx, yy, false);
 				assertFalse(b.get0(xx, yy));
 				assertFalse(setRet);
 			}
@@ -341,6 +343,92 @@ public class BoardTest {
 			}
 		}
 
+	}
+
+	@Test
+	public void testUpdate() {
+		Board b = new Board();
+		Random r = new Random();
+
+		boolean[][] block = new boolean[16][16];
+		byte[] data = new byte[32];
+		int[][] l1 = new int[4][4];
+		int l2;
+
+		int t;
+
+		for (int c = 0; c < 100; ++c) {
+			b.setAll(true);
+			for (int i = 0; i < 32; ++i) {
+				data[i] = 0;
+			}
+			for (int i = 0; i < 4; ++i) {
+				for (int j = 0; j < 4; ++j) {
+					l1[i][j] = 0;
+				}
+			}
+			l2 = 0;
+			for (int i = 0; i < 16; ++i) {
+				for (int j = 0; j < 16; ++j) {
+					boolean tmpB = r.nextBoolean();
+					block[i][j] = tmpB;
+					data[j * 2 + i / 8] |= tmpB ? (1 << (i % 8)) : 0;
+					l1[i >> 2][j >> 2] += tmpB ? 1 : 0;
+					l2 += tmpB ? 1 : 0;
+				}
+			}
+
+			b.update(0, 0, data);
+			for (int i = 0; i < 16; ++i) {
+				for (int j = 0; j < 16; ++j) {
+					assertEquals(block[i][j], b.get0(i, j));
+				}
+			}
+			for (int i = 0; i < 4; ++i) {
+				for (int j = 0; j < 4; ++j) {
+					t = l1[i][j];
+					t -= t >> 3;
+					assertEquals(t, b.get1(i, j));
+				}
+			}
+			t = l2;
+			t -= t >> 7;
+			assertEquals(t, b.get2(0, 0));
+
+			b.update(23 << 4, 31 << 4, data);
+			for (int i = 0; i < 16; ++i) {
+				for (int j = 0; j < 16; ++j) {
+					assertEquals(block[i][j], b.get0((23 << 4) + i, (31 << 4) + j));
+				}
+			}
+			for (int i = 0; i < 4; ++i) {
+				for (int j = 0; j < 4; ++j) {
+					t = l1[i][j];
+					t -= t >> 3;
+					assertEquals(t, b.get1((23 << 2) + i, (31 << 2) + j));
+				}
+			}
+			t = l2;
+			t -= t >> 7;
+			assertEquals(t, b.get2(23, 31));
+
+			b.update(511 << 4, 255 << 4, data);
+			for (int i = 0; i < 16; ++i) {
+				for (int j = 0; j < 16; ++j) {
+					assertEquals(block[i][j], b.get0((511 << 4) + i, (255 << 4) + j));
+				}
+			}
+			for (int i = 0; i < 4; ++i) {
+				for (int j = 0; j < 4; ++j) {
+					t = l1[i][j];
+					t -= t >> 3;
+					assertEquals(t, b.get1((511 << 2) + i, (255 << 2) + j));
+				}
+			}
+			t = l2;
+			t -= t >> 7;
+			assertEquals(t, b.get2(511, 255));
+		}
 	}
 
 }
