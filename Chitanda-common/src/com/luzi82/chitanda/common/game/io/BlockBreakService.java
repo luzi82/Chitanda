@@ -3,7 +3,7 @@ package com.luzi82.chitanda.common.game.io;
 public interface BlockBreakService {
 
 	static public interface Listener {
-		public void updateBlock(int aX0, int aY0, byte[] aData);
+		public void updateBlock(int aZoom, int aXz, int aYz, byte[] aData);
 	}
 
 	public void setListener(Listener aListener);
