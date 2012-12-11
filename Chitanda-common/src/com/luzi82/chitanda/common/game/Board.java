@@ -79,7 +79,7 @@ public class Board {
 		return true;
 	}
 
-	public boolean update(int aX0, int aY0, byte[] aData) {
+	public boolean update0(int aX0, int aY0, byte[] aData) {
 		boolean ret = false;
 		final int i0 = xyToIndex0(aX0, aY0);
 		int ii0 = i0;
@@ -130,6 +130,24 @@ public class Board {
 			v2 -= (v2 >> 7);
 			mData2[i2] = (byte) v2;
 			++mVersion;
+		}
+		return ret;
+	}
+
+	public byte[] getUpdate0(int aX0, int aY0) {
+		byte[] ret = new byte[32];
+		final int i0 = xyToIndex0(aX0, aY0);
+		int ii0 = i0;
+		int iii0;
+		int di = 0;
+		for (int y0 = 0; y0 < UPDATE_BLOCK_SIZE; ++y0) {
+			iii0 = ii0;
+			for (int xi0 = 0; xi0 < 2; ++xi0) {
+				ret[di] = mData0[iii0];
+				++iii0;
+				++di;
+			}
+			ii0 += YSTEP0;
 		}
 		return ret;
 	}

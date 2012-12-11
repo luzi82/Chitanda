@@ -4,6 +4,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertEquals;
 
+import java.util.Arrays;
 import java.util.Random;
 
 import org.junit.Test;
@@ -378,7 +379,7 @@ public class BoardTest {
 				}
 			}
 
-			b.update(0, 0, data);
+			b.update0(0, 0, data);
 			for (int i = 0; i < 16; ++i) {
 				for (int j = 0; j < 16; ++j) {
 					assertEquals(block[i][j], b.get0(i, j));
@@ -395,7 +396,7 @@ public class BoardTest {
 			t -= t >> 7;
 			assertEquals(t, b.get2(0, 0));
 
-			b.update(23 << 4, 31 << 4, data);
+			b.update0(23 << 4, 31 << 4, data);
 			for (int i = 0; i < 16; ++i) {
 				for (int j = 0; j < 16; ++j) {
 					assertEquals(block[i][j], b.get0((23 << 4) + i, (31 << 4) + j));
@@ -412,7 +413,7 @@ public class BoardTest {
 			t -= t >> 7;
 			assertEquals(t, b.get2(23, 31));
 
-			b.update(511 << 4, 255 << 4, data);
+			b.update0(511 << 4, 255 << 4, data);
 			for (int i = 0; i < 16; ++i) {
 				for (int j = 0; j < 16; ++j) {
 					assertEquals(block[i][j], b.get0((511 << 4) + i, (255 << 4) + j));
@@ -466,7 +467,7 @@ public class BoardTest {
 				}
 			}
 
-			boolean tB = b.update(0, 0, data);
+			boolean tB = b.update0(0, 0, data);
 			assertTrue(tB);
 			for (int i = 0; i < 16; ++i) {
 				for (int j = 0; j < 16; ++j) {
@@ -497,7 +498,7 @@ public class BoardTest {
 				}
 			}
 
-			tB = b.update(0, 0, data);
+			tB = b.update0(0, 0, data);
 			assertFalse(tB);
 			for (int i = 0; i < 16; ++i) {
 				for (int j = 0; j < 16; ++j) {
@@ -551,7 +552,7 @@ public class BoardTest {
 				}
 			}
 
-			boolean tB = b.update(0, 0, data);
+			boolean tB = b.update0(0, 0, data);
 			assertTrue(tB);
 			for (int i = 0; i < 16; ++i) {
 				for (int j = 0; j < 16; ++j) {
@@ -590,7 +591,7 @@ public class BoardTest {
 				}
 			}
 
-			tB = b.update(0, 0, data);
+			tB = b.update0(0, 0, data);
 			assertTrue(tB);
 			for (int i = 0; i < 16; ++i) {
 				for (int j = 0; j < 16; ++j) {
@@ -607,6 +608,29 @@ public class BoardTest {
 			t = l2;
 			t -= t >> 7;
 			assertEquals(t, b.get2(0, 0));
+		}
+	}
+
+	@Test
+	public void testGetUpdate0() {
+		Board b = new Board();
+		Random r = new Random();
+
+		byte[] data = new byte[32];
+		byte[] update = null;
+
+		for (int c = 0; c < 100; ++c) {
+			b.setAll(true);
+
+			r.nextBytes(data);
+
+			b.update0(0, 0, data);
+			update = b.getUpdate0(0, 0);
+			assertTrue(Arrays.equals(data, update));
+
+			b.update0(Board.WIDTH - 16, Board.HEIGHT - 16, data);
+			update = b.getUpdate0(Board.WIDTH - 16, Board.HEIGHT - 16);
+			assertTrue(Arrays.equals(data, update));
 		}
 	}
 
