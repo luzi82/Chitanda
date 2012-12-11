@@ -152,6 +152,28 @@ public class Board {
 		return ret;
 	}
 
+	public byte[] getUpdate1(int aX1, int aY1) {
+		byte[] ret = new byte[UPDATE_BLOCK_SIZE * 8];
+		final int i1 = xyToIndex1(aX1, aY1);
+		int ii1 = i1;
+		int iii1;
+		int di = 0;
+		for (int y1 = 0; y1 < UPDATE_BLOCK_SIZE; ++y1) {
+			iii1 = ii1;
+			for (int xi1 = 0; xi1 < 8; ++xi1) {
+				ret[di] = mData1[iii1];
+				++iii1;
+				++di;
+			}
+			ii1 += YSTEP1;
+		}
+		return ret;
+	}
+
+	public byte[] getUpdate2(int aX2, int aY2) {
+		return null;
+	}
+
 	public void setAll(boolean aValue) {
 		byte v = (byte) (aValue ? 0xff : 0x00);
 		for (int i = 0; i < DATA0_SIZE; ++i) {

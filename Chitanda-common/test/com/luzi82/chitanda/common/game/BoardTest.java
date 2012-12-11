@@ -634,4 +634,43 @@ public class BoardTest {
 		}
 	}
 
+	@Test
+	public void testGetUpdate1() {
+		Board b = new Board();
+		Random r = new Random();
+
+		final int WW = Board.WIDTH - 64;
+		final int HH = Board.HEIGHT - 64;
+
+		byte[] data = new byte[32];
+		byte[] update = null;
+
+		int di;
+
+		for (int c = 0; c < 100; ++c) {
+			b.setAll(true);
+
+			for (int i = 0; i < 4; ++i) {
+				for (int j = 0; j < 4; ++j) {
+					r.nextBytes(data);
+					b.update0(i * 16, j * 16, data);
+					b.update0(WW + i * 16, HH + j * 16, data);
+				}
+			}
+			update = b.getUpdate1(0, 0);
+
+			di = 0;
+			for (int y = 0; y < 16; ++y) {
+				for (int x = 0; x < 8; ++x) {
+					for (int s = 0; s < 8; s += 4) {
+						assertEquals(b.get1(x * 2 + (s / 4), y), ((update[di] >> s) & 0xf));
+						assertEquals(b.get1(WW / 4 + x * 2 + (s / 4), HH / 4 + y), ((update[di] >> s) & 0xf));
+					}
+					++di;
+				}
+			}
+		}
+
+	}
+
 }
