@@ -203,23 +203,28 @@ public class Board {
 	}
 
 	public static int xyToIndex0(int aX, int aY) {
-		return (aX + aY * WIDTH) / Byte.SIZE;
+		// return (aX + aY * WIDTH) / Byte.SIZE;
+		return (aX + aY * WIDTH) >> 3;
 	}
 
 	public static int xyToOffset0(int aX, int aY) {
-		return (aX + aY * WIDTH) % Byte.SIZE;
+		// return (aX + aY * WIDTH) % Byte.SIZE;
+		return aX & 0x7;
 	}
 
 	public static int xyToIndex1(int aX1, int aY1) {
-		return (aX1 + aY1 * (WIDTH / 4)) / 2;
+		// return (aX1 + aY1 * (WIDTH / 4)) / 2;
+		return (aX1 + aY1 * (WIDTH >> 2)) >> 1;
 	}
 
 	public static int xyToOffset1(int aX1, int aY1) {
-		return ((aX1 + aY1 * (WIDTH / 4)) & 1) * 4;
+		// return ((aX1 + aY1 * (WIDTH / 4)) & 1) * 4;
+		return (aX1 & 1) << 2;
 	}
 
 	public static int xyToIndex2(int aX2, int aY2) {
-		return aX2 + aY2 * (WIDTH / 16);
+		// return aX2 + aY2 * (WIDTH / 16);
+		return aX2 + aY2 * (WIDTH >> 4);
 	}
 
 	public int layerTotal1(int aI0, int aO0) {
