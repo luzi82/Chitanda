@@ -6,6 +6,8 @@ import java.util.TreeSet;
 import com.badlogic.gdx.graphics.Pixmap;
 
 public class Board extends com.luzi82.chitanda.common.game.Board {
+	
+	static public final int PIXMAP_BLOCK_SIZE = 64;
 
 	static private byte[] BB = new byte[64 * 64 * 4];
 
