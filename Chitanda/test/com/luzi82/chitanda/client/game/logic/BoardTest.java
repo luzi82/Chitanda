@@ -23,11 +23,15 @@ public class BoardTest {
 		b.update1Remote(0, 0, data);
 		b.fillPixmapBuf1(pixmapBuf, 0, 0);
 		assertEquals((byte) 0xff, pixmapBuf[3]);
+		assertEquals(0xf, b.get1(0, 0));
+		assertEquals(0xff, b.get2(0, 0));
 
 		data[0] = (byte) 0xf4;
 		b.update1Remote(0, 0, data);
 		b.fillPixmapBuf1(pixmapBuf, 0, 0);
 		assertEquals((byte) 0x44, pixmapBuf[3]);
+		assertEquals(0xf, b.get1(0, 0));
+		assertEquals(0xff, b.get2(0, 0));
 
 		data[0] = (byte) 0xf0;
 		b.update1Remote(0, 0, data);
@@ -39,6 +43,8 @@ public class BoardTest {
 				assertEquals(expect, b.get0(i, ii));
 			}
 		}
+		assertEquals(0, b.get1(0, 0));
+		assertEquals(0xef, b.get2(0, 0));
 
 		b.setAll(true);
 		for (i = 0; i < data.length; ++i) {
@@ -59,5 +65,7 @@ public class BoardTest {
 				assertEquals(expect, b.get0(i, ii));
 			}
 		}
+		assertEquals(0, b.get1(1, 0));
+		assertEquals(0xef, b.get2(0, 0));
 	}
 }
