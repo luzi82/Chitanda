@@ -7,7 +7,7 @@ public class BoardTest {
 
 	@Test
 	public void testUpdate1Remote() {
-		int i, ii, iii;
+		int i, ii;
 
 		Board b = new Board();
 		byte[] pixmapBuf = new byte[Board.PIXMAP_BLOCK_SIZE * Board.PIXMAP_BLOCK_SIZE * 4];
@@ -143,6 +143,7 @@ public class BoardTest {
 		b.update1Remote(0, 0, data);
 		b.fillPixmapBuf1(pixmapBuf, 0, 0);
 		assertEquals((byte) 0x33, pixmapBuf[p1 * 4 + 3]);
+		assertEquals(0x3, b.get1View(x1, y1));
 		assertEquals(0xf, b.get1(x1, y1));
 		assertEquals(0xff, b.get2(x1 / 4, y1 / 4));
 
@@ -156,6 +157,7 @@ public class BoardTest {
 				assertEquals(expect, b.get0(i, ii));
 			}
 		}
+		assertEquals(0, b.get1View(x1, y1));
 		assertEquals(0, b.get1(x1, y1));
 		assertEquals(0xef, b.get2(x1 / 4, y1 / 4));
 
@@ -189,6 +191,58 @@ public class BoardTest {
 		}
 		assertEquals(0, b.get1(x1, y1));
 		assertEquals(0xef, b.get2(x1 / 4, y1 / 4));
+
+		// //
+
+		x1 = 17 * Board.UPDATE_BLOCK_SIZE;
+		y1 = 23 * Board.UPDATE_BLOCK_SIZE;
+		b.setAll(true);
+		for (i = 0; i < data.length; ++i) {
+			data[i] = (byte) 0xff;
+		}
+		data[0] = (byte) 0xf5;
+		b.update1Remote(x1, y1, data);
+		assertEquals(0x5, b.get1View(x1, y1));
+		assertEquals(0xf, b.get1(x1, y1));
+		assertEquals(0xff, b.get2(x1 / 4, y1 / 4));
+
+		data[0] = (byte) 0xf0;
+		b.update1Remote(x1, y1, data);
+		for (i = (x1 * 4 - 5); i < (x1 * 4 + 10); ++i) {
+			for (ii = (y1 * 4 - 5); ii < (y1 * 4 + 10); ++ii) {
+				boolean expect = !((i >= x1 * 4) && (i < x1 * 4 + 4) && (ii >= y1 * 4) && (ii < y1 * 4 + 4));
+				assertEquals(expect, b.get0(i, ii));
+			}
+		}
+		assertEquals(0, b.get1View(x1, y1));
+		assertEquals(0, b.get1(x1, y1));
+		assertEquals(0xef, b.get2(x1 / 4, y1 / 4));
+
+		// //
+
+		x1 = (Board.WIDTH / 4) - Board.UPDATE_BLOCK_SIZE;
+		y1 = (Board.HEIGHT / 4) - Board.UPDATE_BLOCK_SIZE;
+		b.setAll(true);
+		for (i = 0; i < data.length; ++i) {
+			data[i] = (byte) 0xff;
+		}
+		data[data.length - 1] = (byte) 0x8f;
+		b.update1Remote(x1, y1, data);
+		assertEquals(0x8, b.get1View(Board.WIDTH / 4 - 1, Board.HEIGHT / 4 - 1));
+		assertEquals(0xf, b.get1(Board.WIDTH / 4 - 1, Board.HEIGHT / 4 - 1));
+		assertEquals(0xff, b.get2(Board.WIDTH / 16 - 1, Board.HEIGHT / 16 - 1));
+
+		data[data.length - 1] = (byte) 0x0f;
+		b.update1Remote(x1, y1, data);
+		for (i = Board.WIDTH - 100; i < Board.WIDTH; ++i) {
+			for (ii = Board.HEIGHT - 100; ii < Board.HEIGHT; ++ii) {
+				boolean expect = !((i >= Board.WIDTH - 4) && (i < Board.WIDTH) && (ii >= Board.HEIGHT - 4) && (ii < Board.HEIGHT));
+				assertEquals(expect, b.get0(i, ii));
+			}
+		}
+		assertEquals(0, b.get1View(Board.WIDTH / 4 - 1, Board.HEIGHT / 4 - 1));
+		assertEquals(0, b.get1(Board.WIDTH / 4 - 1, Board.HEIGHT / 4 - 1));
+		assertEquals(0xef, b.get2(Board.WIDTH / 16 - 1, Board.HEIGHT / 16 - 1));
 	}
 
 	// TODO ori-data / remote-data overlap

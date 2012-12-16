@@ -17,6 +17,17 @@ public class Board extends com.luzi82.chitanda.common.game.Board {
 	protected final byte[] mData2Remote = new byte[DATA2_SIZE];
 	protected final byte[] mData2View = new byte[DATA2_SIZE];
 
+	public int get1View(int aX1, int aY1) {
+		int i1 = xyToIndex1(aX1, aY1);
+		int o1 = xyToOffset1(aX1, aY1);
+		return (mData1View[i1] >> o1) & 0xf;
+	}
+
+	public int get2View(int aX2, int aY2) {
+		int i2 = xyToIndex2(aX2, aY2);
+		return ((int) (mData2View[i2])) & 0xff;
+	}
+
 	public void update1Remote(int aX1, int aY1, byte[] aData1) {
 		final int i1 = xyToIndex1(aX1, aY1);
 		int ii1 = i1;
@@ -85,8 +96,8 @@ public class Board extends com.luzi82.chitanda.common.game.Board {
 	//
 	// }
 
-	public void writePixmap0(Pixmap aPixmap, int aCX0, int aCY0) {
-		fillPixmapBuf0(BB, aCX0, aCY0);
+	public void writePixmap0(Pixmap aPixmap, int aX0P, int aY0P) {
+		fillPixmapBuf0(BB, aX0P, aY0P);
 
 		ByteBuffer bb = aPixmap.getPixels();
 		bb.rewind();
@@ -94,10 +105,10 @@ public class Board extends com.luzi82.chitanda.common.game.Board {
 		bb.rewind();
 	}
 
-	public void fillPixmapBuf0(byte[] aBuffer, int aCX0, int aCY0) {
-		byte c = (byte) ((((aCX0 + aCY0) & 1) == 0) ? 0x00 : 0x0f);
+	public void fillPixmapBuf0(byte[] aBuffer, int aX0P, int aY0P) {
+		byte c = (byte) ((((aX0P + aY0P) & 1) == 0) ? 0x00 : 0x0f);
 
-		int offset0 = xyToIndex0(aCX0 << 6, aCY0 << 6);
+		int offset0 = xyToIndex0(aX0P << 6, aY0P << 6);
 		int out = 0;
 
 		byte b;
@@ -122,10 +133,10 @@ public class Board extends com.luzi82.chitanda.common.game.Board {
 		}
 	}
 
-	public void writePixmap1(Pixmap aPixmap, int aCX1, int aCY1) {
+	public void writePixmap1(Pixmap aPixmap, int aX1P, int aY1P) {
 		// byte c = (byte) ((((aCX1 + aCY1) & 1) == 0) ? 0x00 : 0x0f);
 
-		fillPixmapBuf1(BB, aCX1, aCY1);
+		fillPixmapBuf1(BB, aX1P, aY1P);
 
 		ByteBuffer bb = aPixmap.getPixels();
 		bb.rewind();
@@ -155,13 +166,13 @@ public class Board extends com.luzi82.chitanda.common.game.Board {
 		bb.rewind();
 	}
 
-	public void fillPixmapBuf1(byte[] aBuffer, int aCX1, int aCY1) {
-		byte c = (byte) ((((aCX1 + aCY1) & 1) == 0) ? 0x00 : 0x0f);
+	public void fillPixmapBuf1(byte[] aBuffer, int aX1P, int aY1P) {
+		byte c = (byte) ((((aX1P + aY1P) & 1) == 0) ? 0x00 : 0x0f);
 
 		// ByteBuffer bb = aPixmap.getPixels();
 		// bb.rewind();
 
-		int i1 = xyToIndex1(aCX1 << 6, aCY1 << 6);
+		int i1 = xyToIndex1(aX1P << 6, aY1P << 6);
 		int out = 0;
 
 		byte b;
@@ -187,13 +198,13 @@ public class Board extends com.luzi82.chitanda.common.game.Board {
 		// bb.rewind();
 	}
 
-	public void writePixmap2(Pixmap aPixmap, int aCX2, int aCY2) {
-		byte c = (byte) ((((aCX2 + aCY2) & 1) == 0) ? 0x00 : 0x0f);
+	public void writePixmap2(Pixmap aPixmap, int aX2P, int aY2P) {
+		byte c = (byte) ((((aX2P + aY2P) & 1) == 0) ? 0x00 : 0x0f);
 
 		ByteBuffer bb = aPixmap.getPixels();
 		bb.rewind();
 
-		int i2 = xyToIndex2(aCX2 << 6, aCY2 << 6);
+		int i2 = xyToIndex2(aX2P << 6, aY2P << 6);
 		int out = 0;
 
 		for (int i = 0; i < 64; ++i) {
