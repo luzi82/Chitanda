@@ -245,5 +245,43 @@ public class BoardTest {
 		assertEquals(0xef, b.get2(Board.WIDTH / 16 - 1, Board.HEIGHT / 16 - 1));
 	}
 
-	// TODO ori-data / remote-data overlap
+	@Test
+	public void testUpdate1RemoteOver() {
+		int i;
+
+		Board b = new Board();
+		byte[] data = new byte[Board.UPDATE_BLOCK_SIZE * Board.UPDATE_BLOCK_SIZE / 2];
+
+		b.setAll(true);
+		b.set(0, 0, false);
+		assertEquals(b.get1View(0, 0), 0xe);
+		assertEquals(b.get2View(0, 0), 0xfe);
+
+		for (i = 0; i < data.length; ++i) {
+			data[i] = (byte) 0xff;
+		}
+		data[0]=(byte)0xfe;
+		b.update1Remote(0, 0, data);
+		assertEquals(b.get1View(0, 0), 0xe);
+		assertEquals(b.get2View(0, 0), 0xfe);
+
+		data[0]=(byte)0xfd;
+		b.update1Remote(0, 0, data);
+		assertEquals(b.get1View(0, 0), 0xd);
+		assertEquals(b.get2View(0, 0), 0xfe);
+
+		b.set(0, 0, false);
+		assertEquals(b.get1View(0, 0), 0xd);
+		assertEquals(b.get2View(0, 0), 0xfe);
+
+		b.set(1, 0, false);
+		assertEquals(b.get1View(0, 0), 0xd);
+		assertEquals(b.get2View(0, 0), 0xfd);
+
+		b.set(2, 0, false);
+		assertEquals(b.get1View(0, 0), 0xc);
+		assertEquals(b.get2View(0, 0), 0xfc);
+	}
+	
+	// view update after update0
 }

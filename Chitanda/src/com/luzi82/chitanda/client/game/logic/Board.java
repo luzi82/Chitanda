@@ -6,7 +6,7 @@ import java.util.TreeSet;
 import com.badlogic.gdx.graphics.Pixmap;
 
 public class Board extends com.luzi82.chitanda.common.game.Board {
-	
+
 	static public final int PIXMAP_BLOCK_SIZE = 64;
 
 	static private byte[] BB = new byte[64 * 64 * 4];
@@ -41,8 +41,8 @@ public class Board extends com.luzi82.chitanda.common.game.Board {
 				mData1Remote[iii1] = aData1[di];
 
 				for (int xo1 = 0; xo1 < 8; xo1 += 4) {
-					int dr = (mData1Remote[iii1] >> xo1)&0xf;
-					int d = (mData1[iii1] >> xo1)&0xf;
+					int dr = (mData1Remote[iii1] >> xo1) & 0xf;
+					int d = (mData1[iii1] >> xo1) & 0xf;
 
 					// replace mData1View
 					if (dr < d) {
@@ -221,6 +221,23 @@ public class Board extends com.luzi82.chitanda.common.game.Board {
 
 		bb.put(BB);
 		bb.rewind();
+	}
+
+	public boolean set(int aX, int aY, boolean aV) {
+		boolean ret = super.set(aX, aY, aV);
+		if (ret) {
+			int i1 = xyToIndex1(aX >> 2, aY >> 2);
+			int o1 = xyToOffset1(aX >> 2, aY >> 2);
+			int d1 = ((mData1[i1]) >> o1) & 0xf;
+			int vv1 = mData1View[i1];
+			int v1 = (vv1 >> o1) & 0xf;
+			v1 = Math.min(d1, v1);
+			vv1 = (vv1 & (~(0xf << o1))) | (v1 << o1);
+			mData1View[i1] = (byte) vv1;
+			int i2 = xyToIndex2(aX >> 4, aY >> 4);
+			mData2View[i2] = (byte) Math.min((mData2View[i2] & 0xff), (mData2[i2] & 0xff));
+		}
+		return ret;
 	}
 
 	public void setAll(boolean aValue) {
