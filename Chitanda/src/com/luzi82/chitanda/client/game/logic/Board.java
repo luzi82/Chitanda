@@ -214,7 +214,7 @@ public class Board extends com.luzi82.chitanda.common.game.Board {
 				BB[out++] = c;
 				BB[out++] = c;
 				BB[out++] = c;
-				BB[out++] = mData2[ii];
+				BB[out++] = mData2View[ii];
 			}
 			i2 += YSTEP2;
 		}
