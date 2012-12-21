@@ -240,6 +240,36 @@ public class Board extends com.luzi82.chitanda.common.game.Board {
 		return ret;
 	}
 
+	public boolean update0(int aX0, int aY0, byte[] aData) {
+		boolean ret = super.update0(aX0, aY0, aData);
+		if (ret) {
+			int i1 = xyToIndex1(aX0 >> 2, aY0 >> 2);
+			int ii1;
+			int d1, d1d, d1v;
+			int v1d, v1v;
+			for (int y1 = 0; y1 < 4; ++y1) {
+				ii1 = i1;
+				for (int xi1 = 0; xi1 < 2; ++xi1) {
+					d1d = mData1[ii1];
+					d1v = mData1View[ii1];
+					d1 = 0;
+					for (int xo1 = 0; xo1 < 8; xo1 += 4) {
+						v1d = (d1d >> xo1) & 0xf;
+						v1v = (d1v >> xo1) & 0xf;
+						v1v = Math.min(v1d, v1v);
+						d1 |= v1v << xo1;
+					}
+					mData1View[ii1] = (byte) d1;
+					++ii1;
+				}
+				i1 += YSTEP1;
+			}
+			int i2 = xyToIndex2(aX0 >> 4, aY0 >> 4);
+			mData2View[i2] = (byte) (Math.min(mData2[i2], mData2View[i2]));
+		}
+		return ret;
+	}
+
 	public void setAll(boolean aValue) {
 		super.setAll(aValue);
 		byte v = (byte) (aValue ? 0xff : 0x00);
