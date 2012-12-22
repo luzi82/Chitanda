@@ -1,6 +1,9 @@
 package com.luzi82.chitanda.client.game.logic;
 
 import static org.junit.Assert.*;
+
+import java.util.Arrays;
+
 import org.junit.Test;
 
 public class BoardTest {
@@ -284,7 +287,7 @@ public class BoardTest {
 	}
 
 	@Test
-	public void update0ThenGetView() {
+	public void testUpdate0ThenGetView() {
 		Board b = new Board();
 		byte[] data = new byte[32];
 		for (int i = 0; i < 32; ++i) {
@@ -301,6 +304,46 @@ public class BoardTest {
 		b.update0(0, 0, data);
 		assertEquals(0xe, b.get1View(0, 0));
 		assertEquals(0xfe, b.get2View(0, 0));
+	}
+
+	@Test
+	public void testUpdate2Remote() {
+		Board b = new Board();
+		byte[] data = new byte[Board.UPDATE2_SIZE];
+		Arrays.fill(data, (byte) 0xff);
+
+		b.setAll(true);
+		assertTrue(b.get0(0, 0));
+		assertEquals(0xf, b.get1(0, 0));
+		assertEquals(0xf, b.get1View(0, 0));
+		assertEquals(0xff, b.get2(0, 0));
+		assertEquals(0xff, b.get2View(0, 0));
+
+		b.update2Remote(0, 0, data);
+		assertTrue(b.get0(0, 0));
+		assertEquals(0xf, b.get1(0, 0));
+		assertEquals(0xf, b.get1View(0, 0));
+		assertEquals(0xff, b.get2(0, 0));
+		assertEquals(0xff, b.get2View(0, 0));
+
+		data[0] = (byte) 0xfe;
+		b.update2Remote(0, 0, data);
+		assertTrue(b.get0(0, 0));
+		assertEquals(0xf, b.get1(0, 0));
+		assertEquals(0xf, b.get1View(0, 0));
+		assertEquals(0xff, b.get2(0, 0));
+		assertEquals(0xfe, b.get2View(0, 0));
+
+		data[0] = (byte) 0x00;
+		b.update2Remote(0, 0, data);
+		assertFalse(b.get0(0, 0));
+		assertEquals(0x0, b.get1(0, 0));
+		assertEquals(0x0, b.get1View(0, 0));
+		assertEquals(0x0, b.get2(0, 0));
+		assertEquals(0x0, b.get2View(0, 0));
+		assertFalse(b.get0(15, 15));
+		assertEquals(0x0, b.get1(3, 3));
+		assertEquals(0x0, b.get1View(3, 3));
 	}
 
 }

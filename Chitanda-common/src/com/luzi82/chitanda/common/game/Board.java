@@ -1,8 +1,13 @@
 package com.luzi82.chitanda.common.game;
 
+import java.util.Arrays;
+
 public class Board {
 
-	static public final int UPDATE_BLOCK_SIZE = 16;
+	public static final int UPDATE_BLOCK_SIZE = 16;
+	public static final int UPDATE0_SIZE = UPDATE_BLOCK_SIZE * UPDATE_BLOCK_SIZE / 8;
+	public static final int UPDATE1_SIZE = UPDATE_BLOCK_SIZE * UPDATE_BLOCK_SIZE / 2;
+	public static final int UPDATE2_SIZE = UPDATE_BLOCK_SIZE * UPDATE_BLOCK_SIZE;
 
 	public static final int WIDTH = 2048 * 4;
 	public static final int HEIGHT = 1024 * 4;
@@ -262,6 +267,35 @@ public class Board {
 		}
 		return ret;
 	}
+
+	// aX0, aW0 should be x8
+	public static void zeroRect0(byte[] aData0, int aX0, int aY0, int aW0, int aH0) {
+		int i0 = xyToIndex0(aX0, aY0);
+		int ww = aW0 >> 3;
+		for (int y = 0; y < aH0; ++y) {
+			Arrays.fill(aData0, i0, i0 + ww, (byte) 0);
+			i0 += YSTEP0;
+		}
+	}
+
+	// aX1, aW1 should be x2
+	public static void zeroRect1(byte[] aData1, int aX1, int aY1, int aW1, int aH1) {
+		int i1 = xyToIndex1(aX1, aY1);
+		int ww = aW1 >> 1;
+		for (int y = 0; y < aH1; ++y) {
+			Arrays.fill(aData1, i1, i1 + ww, (byte) 0);
+			i1 += YSTEP1;
+		}
+	}
+
+	// public static void zeroRect2(byte[] aData2, int aX2, int aY2, int aW2,
+	// int aH2) {
+	// int i2 = xyToIndex1(aX2, aY2);
+	// for (int y = 0; y < aH2; ++y) {
+	// Arrays.fill(aData2, i2, i2 + aW2, (byte) 0);
+	// i2 += YSTEP2;
+	// }
+	// }
 
 	public int getVersion() {
 		return mVersion;

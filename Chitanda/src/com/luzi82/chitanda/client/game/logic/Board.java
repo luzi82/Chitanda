@@ -92,9 +92,40 @@ public class Board extends com.luzi82.chitanda.common.game.Board {
 		++mVersion;
 	}
 
-	// public void update2Remote(int aX2, int aY2, byte[] aData) {
-	//
-	// }
+	public void update2Remote(int aX2, int aY2, byte[] aData) {
+		final int i2 = xyToIndex2(aX2, aY2);
+		int ii2 = i2;
+		int iii2;
+		int di = 0;
+		int d;
+		for (int y2 = 0; y2 < UPDATE_BLOCK_SIZE; ++y2) {
+			iii2 = ii2;
+			for (int xi2 = 0; xi2 < UPDATE_BLOCK_SIZE; ++xi2) {
+				d = aData[di] & 0xff;
+				mData2Remote[iii2] = (byte) d;
+
+				// update mData2View
+				if (d < (mData2View[iii2] & 0xff)) {
+					mData2View[iii2] = (byte) d;
+				}
+
+				// when zero, update mData, mDataView
+				if ((d == 0) && (mData2[iii2] != 0)) {
+					mData2[iii2] = 0;
+					int x1 = (aX2 + xi2) << 2;
+					int y1 = (aY2 + y2) << 2;
+					zeroRect1(mData1Remote, x1, y1, 4, 4);
+					zeroRect1(mData1, x1, y1, 4, 4);
+					zeroRect1(mData1View, x1, y1, 4, 4);
+					zeroRect0(mData0, x1 << 2, y1 << 2, 16, 16);
+				}
+
+				++iii2;
+				++di;
+			}
+			ii2 += YSTEP2;
+		}
+	}
 
 	public void writePixmap0(Pixmap aPixmap, int aX0P, int aY0P) {
 		fillPixmapBuf0(BB, aX0P, aY0P);
