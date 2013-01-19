@@ -4,7 +4,9 @@ import java.util.Arrays;
 
 public class Board {
 
-	public static final int UPDATE_BLOCK_SIZE = 16;
+	public static final int UPDATE_BLOCK_SIZE_SHIFT = 4;
+	public static final int UPDATE_BLOCK_SIZE = 1 << UPDATE_BLOCK_SIZE_SHIFT;
+	public static final int UPDATE_BLOCK_COOR_MASK = (-1) << UPDATE_BLOCK_SIZE_SHIFT;
 	public static final int UPDATE0_SIZE = UPDATE_BLOCK_SIZE * UPDATE_BLOCK_SIZE / 8;
 	public static final int UPDATE1_SIZE = UPDATE_BLOCK_SIZE * UPDATE_BLOCK_SIZE / 2;
 	public static final int UPDATE2_SIZE = UPDATE_BLOCK_SIZE * UPDATE_BLOCK_SIZE;
@@ -179,31 +181,32 @@ public class Board {
 		byte[] ret = new byte[UPDATE_BLOCK_SIZE * UPDATE_BLOCK_SIZE];
 		final int i2 = xyToIndex2(aX2, aY2);
 		int ii2 = i2;
-		int iii2;
 		int di = 0;
 		for (int y2 = 0; y2 < UPDATE_BLOCK_SIZE; ++y2) {
-			iii2 = ii2;
-			for (int xi2 = 0; xi2 < UPDATE_BLOCK_SIZE; ++xi2) {
-				ret[di] = mData2[iii2];
-				++iii2;
-				++di;
-			}
+			System.arraycopy(mData2, ii2, ret, di, UPDATE_BLOCK_SIZE);
+			di += UPDATE_BLOCK_SIZE;
 			ii2 += YSTEP2;
 		}
 		return ret;
 	}
 
+	public byte[] getUpdate(int aZoom, int aXZ, int aYZ) {
+		switch (aZoom) {
+		case 0:
+			return getUpdate0(aXZ, aYZ);
+		case 1:
+			return getUpdate1(aXZ, aYZ);
+		case 2:
+			return getUpdate1(aXZ, aYZ);
+		}
+		throw new IllegalArgumentException();
+	}
+
 	public void setAll(boolean aValue) {
 		byte v = (byte) (aValue ? 0xff : 0x00);
-		for (int i = 0; i < DATA0_SIZE; ++i) {
-			mData0[i] = v;
-		}
-		for (int i = 0; i < DATA1_SIZE; ++i) {
-			mData1[i] = v;
-		}
-		for (int i = 0; i < DATA2_SIZE; ++i) {
-			mData2[i] = v;
-		}
+		Arrays.fill(mData0, v);
+		Arrays.fill(mData1, v);
+		Arrays.fill(mData2, v);
 		++mVersion;
 	}
 

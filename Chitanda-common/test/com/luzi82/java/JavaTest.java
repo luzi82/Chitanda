@@ -7,7 +7,7 @@ public class JavaTest {
 
 	@Test
 	public void testGetStackTraceElements() {
-		StackTraceElement[] ret=Java.getStackTraceElements();
+		StackTraceElement[] ret=Java.getStackTrace();
 		Assert.assertEquals("testGetStackTraceElements", ret[0].getMethodName());
 	}
 
