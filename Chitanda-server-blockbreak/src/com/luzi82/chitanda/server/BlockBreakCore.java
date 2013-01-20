@@ -1,5 +1,6 @@
 package com.luzi82.chitanda.server;
 
+import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.Executor;
@@ -51,7 +52,7 @@ public class BlockBreakCore {
 		});
 	}
 
-	public void startUpdate(final int aBoardId, final int aX0, final int aY0, final byte[] aData, final Callback<Void> aCallback) {
+	public void startUpdateBoard(final int aBoardId, final int aX0, final int aY0, final byte[] aData, final Callback<Void> aCallback) {
 		synchronized (this) {
 			if (aBoardId != mBoardId) {
 				Callback.Ret.startException(aCallback, new BoardIdException(), mExecutor);
@@ -100,6 +101,21 @@ public class BlockBreakCore {
 					boardId = mBoardId;
 				}
 				aCallback.done(boardId);
+			}
+		});
+	}
+
+	public void startServiceListenerUpdateBoard(final int aZoom, final int aX, final int aY, final BlockBreakService aBlockBreakService) {
+		mExecutor.execute(new Runnable() {
+			@Override
+			public void run() {
+				byte[] d;
+				int boardId;
+				synchronized (BlockBreakCore.this) {
+					boardId=mBoardId;
+					d = mBoard.getUpdate(aZoom, aX, aY);
+				}
+				aBlockBreakService.startListenerUpdateBoard(boardId, aZoom, aX, aY, d);
 			}
 		});
 	}

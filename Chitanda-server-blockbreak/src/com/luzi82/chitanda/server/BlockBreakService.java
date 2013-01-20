@@ -33,21 +33,8 @@ public class BlockBreakService implements com.luzi82.chitanda.common.game.io.Blo
 			@Override
 			public void run() {
 				for (int x = mXZ; x < mXZ + mWZ; ++x) {
-					final int xx = x;
 					for (int y = mYZ; y < mYZ + mHZ; ++y) {
-						final int yy = y;
-						pCore.mExecutor.execute(new Runnable() {
-							@Override
-							public void run() {
-								byte[] data = null;
-								int boardId;
-								synchronized (pCore) {
-									boardId = pCore.mBoardId;
-									data = pCore.mBoard.getUpdate(aZoom, xx, yy);
-								}
-								startListenerUpdateBoard(boardId, aZoom, xx, yy, data);
-							}
-						});
+						pCore.startServiceListenerUpdateBoard(aZoom, x, y, BlockBreakService.this);
 					}
 				}
 			}
@@ -56,7 +43,7 @@ public class BlockBreakService implements com.luzi82.chitanda.common.game.io.Blo
 
 	@Override
 	public void startUpdateBoard(int aBoardId, int aX0, int aY0, byte[] aData, Callback<Void> aCallback) {
-		pCore.startUpdate(aBoardId, aX0, aY0, aData, aCallback);
+		pCore.startUpdateBoard(aBoardId, aX0, aY0, aData, aCallback);
 	}
 
 	public void startListenerUpdateBoard(final int aBoardId, final int aZoom, final int aXz, final int aYz, final byte[] aData) {
